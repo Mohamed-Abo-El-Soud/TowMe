@@ -1,0 +1,128 @@
+package com.example.towing.towme;
+
+
+import android.app.ActionBar;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+public class MapsActivity extends
+        ActionBarActivity
+//        FragmentActivity
+{
+    // fields for drawers
+    private String[] mDrawerOptions;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mToggle;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps);
+        // enabling action bar app icon and behaving it as toggle button
+        Toolbar tb = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(tb);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        if (savedInstanceState == null) {
+            MapFragment mapFragment = new MapFragment();
+            initializeDrawer();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, mapFragment,DrawerItemClickListener.TAG)
+                    .commit();
+        }
+
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mToggle.onConfigurationChanged(newConfig);
+    }
+
+    private void initializeDrawer(){
+
+        mDrawerOptions = getResources().getStringArray(R.array.drawer_options_array);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout
+                , R.string.app_name, R.string.app_name){};
+        mDrawerLayout.setDrawerListener(mToggle);
+        mToggle.setDrawerIndicatorEnabled(true);
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item
+                , mDrawerOptions));
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(
+                new DrawerItemClickListener(this,mDrawerOptions,mDrawerLayout,mDrawerList));
+
+        getSupportActionBar().setTitle(mDrawerOptions[DrawerItemClickListener.ROW_MAP]);
+    }
+
+    /*
+     * Called when the Activity becomes visible.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        if (id == R.id.action_options) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, new OptionFragment())
+                    .addToBackStack(null)
+                    .commit();
+            return true;
+        }
+        if (mToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Tow me</string>
+    <string name="title_activity_maps">Home</string>
+    <string name="action_search">Search</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="drawer_options_array">
+        <item>Map</item>
+        <item>Options</item>
+        <item>Settings</item>
+    </string-array>
+    <array name="icon_array">
+        <item>@drawable/ic_action_search</item>
+        <item>@drawable/ic_launcher</item>
+    </array>
+</resources>

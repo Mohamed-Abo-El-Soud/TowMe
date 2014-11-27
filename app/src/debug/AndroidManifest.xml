@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity android:name="com.example.towing.towme.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName="com.example.towing.towme.MapsActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.towing.towme.MapsActivity" />
+        </activity>
+    </application>
+
+</manifest>
