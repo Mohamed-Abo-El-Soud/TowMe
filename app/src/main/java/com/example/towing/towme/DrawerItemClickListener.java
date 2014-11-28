@@ -18,6 +18,7 @@ import android.widget.ListView;
 public class DrawerItemClickListener
         implements
         ListView.OnItemClickListener
+        ,DrawerLayout.DrawerListener
         ,FragmentManager.OnBackStackChangedListener
 {
 
@@ -54,6 +55,8 @@ public class DrawerItemClickListener
         public String getName();
     }
 
+    private String currentTitle = null;
+
     /**
      * constructor to initialize all required fields
      * */
@@ -76,6 +79,34 @@ public class DrawerItemClickListener
     public void onItemClick(AdapterView parent, View view, int position, long id) {
         selectItem(position);
     }
+
+
+    @Override
+    public void onDrawerSlide(View view, float v) {
+
+    }
+
+    @Override
+    public void onDrawerOpened(View view) {
+        ActionBar ab = mActivity.getSupportActionBar();
+        if(ab ==null) return;
+        currentTitle = (String)ab.getTitle();
+        ab.setTitle(mActivity.getString(R.string.app_name));
+    }
+
+    @Override
+    public void onDrawerClosed(View view) {
+        ActionBar ab = mActivity.getSupportActionBar();
+        if(ab ==null) return;
+        ab.setTitle(currentTitle);
+    }
+
+    @Override
+    public void onDrawerStateChanged(int i) {
+
+    }
+
+
 
     /**
      * returns a number that correspond to the index of the activeFragments array

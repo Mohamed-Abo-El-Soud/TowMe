@@ -81,8 +81,10 @@ public class MapsActivity extends
                 R.layout.drawer_list_item
                 , mDrawerOptions));
         // Set the list's click listener
-        mDrawerList.setOnItemClickListener(
-                new DrawerItemClickListener(this,mDrawerOptions,mDrawerLayout,mDrawerList));
+        DrawerItemClickListener listener = new DrawerItemClickListener(this
+                ,mDrawerOptions,mDrawerLayout,mDrawerList);
+        mDrawerList.setOnItemClickListener(listener);
+        mDrawerLayout.setDrawerListener(listener);
 
         // Select the first item on the list
         mDrawerList.performItemClick(mDrawerList.getAdapter().getView(0, null, null)
