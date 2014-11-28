@@ -7,7 +7,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -22,33 +21,42 @@ public class DrawerItemClickListener
         ,FragmentManager.OnBackStackChangedListener
 {
 
+    // used for troubleshooting
     private static final String LOG_TAG = DrawerItemClickListener.class.getSimpleName();
+    // external fields
     private ListView mDrawerList;
     private ActionBarActivity mActivity;
     private String[] mDrawerOptions;
     private DrawerLayout mDrawerLayout;
 
+    /**
+     * used to identify the fragments
+     * */
     private static final String[] fragmentTypes = {
             MapFragment.LOG_TAG
             ,OptionFragment.LOG_TAG
             ,SettingsFragment.LOG_TAG
     };
 
-    private static Fragment[] actviveFragments = {
+    /**
+     * a list of all active fragments that are created when the drawer is initialized
+     * */
+    private static Fragment[] activeFragments = {
             new MapFragment()
             ,new OptionFragment()
             ,new SettingsFragment()
     };
 
-    // row positions that correspond to the displayed options
-    public static final int ROW_MAP = 0;
-    public static final int ROW_OPTIONS = 1;
-    public static final int ROW_SETTINGS = 2;
+    /**
+     * Used as an identifier for fragments
+     * */
+    public interface FragmentWithName {
+        public String getName();
+    }
 
-    // tag names for the fragments so we can pull them out later
-    public static final String TAG = ".tag";
-
-
+    /**
+     * constructor to initialize all required fields
+     * */
     public DrawerItemClickListener(ActionBarActivity activity
             ,String[]drawerOptions
             ,DrawerLayout drawerLayout
@@ -61,12 +69,18 @@ public class DrawerItemClickListener
 
     }
 
+    /**
+     * called when the user clicks on an item in the drawer
+     * */
     @Override
     public void onItemClick(AdapterView parent, View view, int position, long id) {
         selectItem(position);
-        mDrawerLayout.closeDrawer(Gravity.START);
     }
 
+    /**
+     * returns a number that correspond to the index of the activeFragments array
+     * @param fragment: fragment in question
+     * */
     private int getFragmentType(FragmentWithName fragment){
         for (int i = 0; i < fragmentTypes.length; i++) {
             if (fragment.getName().equals(fragmentTypes[i]))
@@ -80,48 +94,32 @@ public class DrawerItemClickListener
      * Swaps fragments in the main content view
      */
     private void selectItem(int position) {
-
-//        if (position == ROW_OPTIONS) {
-//            Fragment option = new OptionFragment();
-//            startFragment(R.id.content_frame, option,TAG);
-//        }
-//        if (position == ROW_MAP) {
-//            Fragment option = new MapFragment();
-//            startFragment(R.id.content_frame, option,TAG);
-//        }
-//        if(position == ROW_SETTINGS){
-//            Fragment option = new SettingsFragment();
-//            startFragment(R.id.content_frame, option,TAG);
-//        }
-
-        startFragment(R.id.content_frame,actviveFragments[position],TAG);
-
-        // Highlight the selected item, update the title, and close the drawer
-//        mDrawerList.setItemChecked(position, true);
-//        setTitle(mDrawerOptions[position]);
-//        mDrawerLayout.closeDrawer(mDrawerList);
+        startFragment(R.id.content_frame, activeFragments[position]);
     }
 
     /**
      * starts a given fragment in a given resource id of layout view
-     * the startFragment is overloaded to allow non-appCompat
-     * fragments to be started as well
      * */
-    private void startFragment(int frame,Fragment fragment,String tag){
+    private void startFragment(int frame,Fragment fragment){
         FragmentManager fragmentManager = mActivity.getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(frame, fragment,tag)
+                .replace(frame, fragment)
                 .addToBackStack(null)
                 .commit();
     }
 
-
+    /**
+     * Changes the title of the action bar to the title of the fragment
+     * */
     public void setTitle(CharSequence title) {
         ActionBar ab = mActivity.getSupportActionBar();
         if(ab !=null)
             ab.setTitle(title);
     }
 
+    /**
+     * Called when a fragment transaction has occurred or the back button is pressed
+     * */
     @Override
     public void onBackStackChanged() {
         Fragment fragment =
@@ -129,11 +127,15 @@ public class DrawerItemClickListener
         try {
             FragmentWithName fragmentWithName = (FragmentWithName)fragment;
             if(fragmentWithName == null)
+                // make sure the fragment has implemented the FragmentWithName interface
                 throw new Exception("This fragment has not implemented FragmentWithName");
 
             int fragmentType = getFragmentType(fragmentWithName);
+            // update the title
             setTitle(mDrawerOptions[fragmentType]);
+            // Highlight the selected item
             mDrawerList.setItemChecked(fragmentType, true);
+            // close the drawer
             mDrawerLayout.closeDrawer(mDrawerList);
 
         } catch (Exception e) {

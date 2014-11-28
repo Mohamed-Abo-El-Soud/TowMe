@@ -28,8 +28,9 @@ import java.util.List;
  */
 public class SettingsFragment extends
         me.piebridge.android.preference.PreferenceFragment
-        implements Preference.OnPreferenceChangeListener
-,FragmentWithName
+        implements
+        Preference.OnPreferenceChangeListener
+        ,DrawerItemClickListener.FragmentWithName
 {
 
     /**

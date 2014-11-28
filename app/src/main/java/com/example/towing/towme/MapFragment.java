@@ -39,7 +39,7 @@ public class MapFragment extends Fragment implements
         ,GoogleApiClient.ConnectionCallbacks
         , GooglePlayServicesClient.OnConnectionFailedListener
         , LocationListener
-    ,FragmentWithName
+    ,DrawerItemClickListener.FragmentWithName
 {
 
     public static final String LOG_TAG = MapFragment.class.getSimpleName();

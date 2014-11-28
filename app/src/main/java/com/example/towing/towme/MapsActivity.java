@@ -40,18 +40,14 @@ public class MapsActivity extends
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // enabling action bar app icon and behaving it as toggle button
+        // enabling action bar app icon and treating it as a toggle button
         Toolbar tb = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(tb);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         if (savedInstanceState == null) {
-            MapFragment mapFragment = new MapFragment();
             initializeDrawer();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, mapFragment,DrawerItemClickListener.TAG)
-                    .commit();
         }
 
     }
@@ -68,6 +64,9 @@ public class MapsActivity extends
         mToggle.onConfigurationChanged(newConfig);
     }
 
+    /**
+     * called to create the drawer and attach the appropriate click listeners
+     * */
     private void initializeDrawer(){
 
         mDrawerOptions = getResources().getStringArray(R.array.drawer_options_array);
@@ -89,7 +88,7 @@ public class MapsActivity extends
         mDrawerList.performItemClick(mDrawerList.getAdapter().getView(0, null, null)
                 , 0, mDrawerList.getItemIdAtPosition(0));
 
-        getSupportActionBar().setTitle(mDrawerOptions[DrawerItemClickListener.ROW_MAP]);
+        getSupportActionBar().setTitle(mDrawerOptions[0]);
     }
 
     /*
@@ -122,6 +121,7 @@ public class MapsActivity extends
                     .commit();
             return true;
         }
+        // handle the drawer touch listener
         if (mToggle.onOptionsItemSelected(item)) {
             return true;
         }

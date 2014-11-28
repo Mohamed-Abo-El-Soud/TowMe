@@ -12,7 +12,8 @@ import android.view.ViewGroup;
 /**
  * Created by ahmedabdalla on 14-11-26.
  */
-public class OptionFragment extends Fragment implements FragmentWithName {
+public class OptionFragment extends Fragment implements
+        DrawerItemClickListener.FragmentWithName {
 
     public static final String ARG_OPTION_NAME = ".option_name";
     public static final String LOG_TAG = OptionFragment.class.getSimpleName();
