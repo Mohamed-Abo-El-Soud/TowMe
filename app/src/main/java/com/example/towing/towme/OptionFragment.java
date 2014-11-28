@@ -12,9 +12,10 @@ import android.view.ViewGroup;
 /**
  * Created by ahmedabdalla on 14-11-26.
  */
-public class OptionFragment extends Fragment {
+public class OptionFragment extends Fragment implements FragmentWithName {
 
     public static final String ARG_OPTION_NAME = ".option_name";
+    public static final String LOG_TAG = OptionFragment.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,5 +30,10 @@ public class OptionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_option, container, false);
+    }
+
+    @Override
+    public String getName() {
+        return LOG_TAG;
     }
 }

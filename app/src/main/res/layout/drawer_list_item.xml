@@ -19,6 +19,7 @@
     android:textSize="14sp"
     android:textColor="@color/black"
     android:text="option"
+    android:background="@drawable/touch_selector"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:paddingLeft="30dp"
     android:paddingTop="15dp"

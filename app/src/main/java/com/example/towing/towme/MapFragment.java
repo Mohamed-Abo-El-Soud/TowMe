@@ -13,9 +13,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -41,7 +38,16 @@ public class MapFragment extends Fragment implements
         GooglePlayServicesClient.ConnectionCallbacks
         ,GoogleApiClient.ConnectionCallbacks
         , GooglePlayServicesClient.OnConnectionFailedListener
-        , LocationListener{
+        , LocationListener
+    ,FragmentWithName
+{
+
+    public static final String LOG_TAG = MapFragment.class.getSimpleName();
+
+    @Override
+    public String getName() {
+        return LOG_TAG;
+    }
 
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -55,7 +61,6 @@ public class MapFragment extends Fragment implements
     // A fast frequency ceiling in milliseconds
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
-    private static final String LOG_TAG = MapsActivity.class.getSimpleName();
 
 
     // Define an object that holds accuracy and frequency parameters

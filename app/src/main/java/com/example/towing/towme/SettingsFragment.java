@@ -26,8 +26,11 @@ import java.util.List;
 /**
  * Created by ahmedabdalla on 14-11-27.
  */
-public class SettingsFragment extends PreferenceFragment
-        implements Preference.OnPreferenceChangeListener{
+public class SettingsFragment extends
+        me.piebridge.android.preference.PreferenceFragment
+        implements Preference.OnPreferenceChangeListener
+,FragmentWithName
+{
 
     /**
      * Determines whether to always show the simplified settings UI, where
@@ -37,7 +40,12 @@ public class SettingsFragment extends PreferenceFragment
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
 
+    public static final String LOG_TAG = SettingsFragment.class.getSimpleName();
 
+    @Override
+    public String getName() {
+        return LOG_TAG;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

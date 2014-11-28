@@ -37,6 +37,7 @@ public class MapsActivity extends
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // enabling action bar app icon and behaving it as toggle button
@@ -83,6 +84,10 @@ public class MapsActivity extends
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(
                 new DrawerItemClickListener(this,mDrawerOptions,mDrawerLayout,mDrawerList));
+
+        // Select the first item on the list
+        mDrawerList.performItemClick(mDrawerList.getAdapter().getView(0, null, null)
+                , 0, mDrawerList.getItemIdAtPosition(0));
 
         getSupportActionBar().setTitle(mDrawerOptions[DrawerItemClickListener.ROW_MAP]);
     }
