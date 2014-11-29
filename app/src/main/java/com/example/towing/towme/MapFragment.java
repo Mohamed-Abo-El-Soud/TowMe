@@ -1,7 +1,7 @@
 package com.example.towing.towme;
 
+import android.app.Application;
 import android.app.Dialog;
-import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -30,6 +30,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 /**
  * Created by ahmedabdalla on 14-11-26.
@@ -452,11 +456,32 @@ public class MapFragment extends Fragment implements
      * user clicks the button.
      */
     public void getAddress() {
-        GetAddressTask task =
-                new GetAddressTask(getActivity()
-                        ,(TextView)mRootview.findViewById(R.id.address_location)
-                        ,(ProgressBar)mRootview.findViewById(R.id.address_progress));
-        task.execute(mCurrentLocation);
+//        GetAddressTask task =
+//                new GetAddressTask(getActivity()
+//                        ,(TextView)mRootview.findViewById(R.id.address_location)
+//                        ,(ProgressBar)mRootview.findViewById(R.id.address_progress));
+//        task.execute(mCurrentLocation);
+
+
+        final TextView textView = (TextView)mRootview.findViewById(R.id.address_location);
+        final ProgressBar progressBar = (ProgressBar)mRootview.findViewById(R.id.address_progress);
+        progressBar.setVisibility(View.VISIBLE);
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("GameScore");
+        query.getInBackground("rKiVrlXhsn", new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if (e == null) {
+                    // object will be your game score
+                    progressBar.setVisibility(View.GONE);
+                    String info = (String)object.get("playerName");
+                    if(info != null) textView.setText(info);
+                } else {
+                    // something went wrong
+                    progressBar.setVisibility(View.GONE);
+                    textView.setText("'playerName' could not be found!");
+                }
+            }
+        });
     }
 
 }
