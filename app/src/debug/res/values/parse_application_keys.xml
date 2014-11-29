@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="parse_application_id">
+        zHvdP3Em9tLrPXURI2NZ4rjbtyj7wlVtVKn6lqON
+    </string>
+    <string name="parse_client_key">
+        vgUhuOT2agiIYjhcf0lCODXDMtBbc1fVA7FJItNn
+    </string>
+    <string name="parse_user_id_key">
+        .userIdKey
+    </string>
+</resources>
