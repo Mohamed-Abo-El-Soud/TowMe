@@ -84,7 +84,40 @@ public class MapsActivity extends
         DrawerItemClickListener listener = new DrawerItemClickListener(this
                 ,mDrawerOptions,mDrawerLayout,mDrawerList);
         mDrawerList.setOnItemClickListener(listener);
-        mDrawerLayout.setDrawerListener(listener);
+        mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View view, float v) {
+                mToggle.onDrawerSlide(view,v);
+            }
+
+            @Override
+            public void onDrawerOpened(View view) {
+                mToggle.onDrawerOpened(view);
+                android.support.v7.app.ActionBar ab = getSupportActionBar();
+                if(ab ==null) return;
+                ab.setTitle(getString(R.string.app_name));
+            }
+
+            @Override
+            public void onDrawerClosed(View view) {
+                mToggle.onDrawerClosed(view);
+                android.support.v7.app.ActionBar ab = getSupportActionBar();
+                if(ab ==null) return;
+                Fragment fragment =
+                        getSupportFragmentManager().findFragmentById(R.id.content_frame);
+                if(fragment == null)return;
+                DrawerItemClickListener.FragmentWithName fragmentWithName
+                        = (DrawerItemClickListener.FragmentWithName)fragment;
+                if(fragmentWithName == null)return;
+                int fragmentType = DrawerItemClickListener.getFragmentType(fragmentWithName);
+                ab.setTitle(mDrawerOptions[fragmentType]);
+            }
+
+            @Override
+            public void onDrawerStateChanged(int i) {
+                mToggle.onDrawerStateChanged(i);
+            }
+        });
 
         // Select the first item on the list
         mDrawerList.performItemClick(mDrawerList.getAdapter().getView(0, null, null)

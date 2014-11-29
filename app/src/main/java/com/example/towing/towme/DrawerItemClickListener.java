@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -90,7 +91,6 @@ public class DrawerItemClickListener
     public void onDrawerOpened(View view) {
         ActionBar ab = mActivity.getSupportActionBar();
         if(ab ==null) return;
-        currentTitle = (String)ab.getTitle();
         ab.setTitle(mActivity.getString(R.string.app_name));
     }
 
@@ -98,7 +98,13 @@ public class DrawerItemClickListener
     public void onDrawerClosed(View view) {
         ActionBar ab = mActivity.getSupportActionBar();
         if(ab ==null) return;
-        ab.setTitle(currentTitle);
+        Fragment fragment =
+                mActivity.getSupportFragmentManager().findFragmentById(R.id.content_frame);
+        if(fragment == null)return;
+        FragmentWithName fragmentWithName = (FragmentWithName)fragment;
+        if(fragmentWithName == null)return;
+        int fragmentType = getFragmentType(fragmentWithName);
+        ab.setTitle(mDrawerOptions[fragmentType]);
     }
 
     @Override
@@ -107,12 +113,11 @@ public class DrawerItemClickListener
     }
 
 
-
     /**
      * returns a number that correspond to the index of the activeFragments array
      * @param fragment: fragment in question
      * */
-    private int getFragmentType(FragmentWithName fragment){
+    public static int getFragmentType(FragmentWithName fragment){
         for (int i = 0; i < fragmentTypes.length; i++) {
             if (fragment.getName().equals(fragmentTypes[i]))
                 return i;
@@ -125,6 +130,7 @@ public class DrawerItemClickListener
      * Swaps fragments in the main content view
      */
     private void selectItem(int position) {
+//        mDrawerLayout.closeDrawer(mDrawerList);
         startFragment(R.id.content_frame, activeFragments[position]);
     }
 
@@ -161,13 +167,15 @@ public class DrawerItemClickListener
                 // make sure the fragment has implemented the FragmentWithName interface
                 throw new Exception("This fragment has not implemented FragmentWithName");
 
+            // close the drawer
+            if (mDrawerLayout.isDrawerOpen(mDrawerList))
+                mDrawerLayout.closeDrawer(mDrawerList)
+                ;
             int fragmentType = getFragmentType(fragmentWithName);
             // update the title
             setTitle(mDrawerOptions[fragmentType]);
             // Highlight the selected item
             mDrawerList.setItemChecked(fragmentType, true);
-            // close the drawer
-            mDrawerLayout.closeDrawer(mDrawerList);
 
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error: " + e);
