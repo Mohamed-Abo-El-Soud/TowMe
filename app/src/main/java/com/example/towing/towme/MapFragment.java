@@ -31,9 +31,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.GetCallback;
+import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 /**
  * Created by ahmedabdalla on 14-11-26.
@@ -97,7 +100,58 @@ public class MapFragment extends Fragment implements
             mRootview = inflater.inflate(R.layout.fragment_map, container, false);
         else
             ((ViewGroup)mRootview.getParent()).removeView(mRootview);
+//        testing();
         return mRootview;
+    }
+
+    ParseObject mysteryObject = null;
+    private void testing(){
+//        ParseObject object = ParseObject.createWithoutData("GameScore","S0I7khN8k0");
+//        ParseObject mysteryObject;
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("GameScore");
+        query.getInBackground("htC5H7Hgjt", new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if (e == null) {
+                    // object will be your game score
+                    mysteryObject = object;
+                    moarTesting();
+//                    object.put("playerName","awesome guy");
+//                    object.put("score",10100000);
+//                    object.saveInBackground();
+
+                } else {
+                    // something went wrong
+                }
+            }
+        });
+    }
+
+    private void moarTesting(){
+        mysteryObject.fetchInBackground(new GetCallback<ParseObject>() {
+            @Override
+            public void done(final ParseObject parseObject, ParseException e) {
+                if (e == null) {
+                    parseObject.put("score", -4000);
+                    parseObject.saveInBackground(new SaveCallback() {
+                         @Override
+                         public void done(ParseException e) {
+                             if (e == null) {
+                                 String k = parseObject.getObjectId();
+                                 if (k!=null)
+                                     ((TextView)mRootview.findViewById(R.id.address_location))
+                                             .setText(k);
+                                 else
+                                     ((TextView)mRootview.findViewById(R.id.address_location))
+                                             .setText("it has failed");
+                             } else{
+                                 ((TextView)mRootview.findViewById(R.id.address_location))
+                                         .setText("it has failed");
+                             }
+                         }
+                    });
+                }
+            }
+        });
     }
 
     @Override
@@ -194,9 +248,6 @@ public class MapFragment extends Fragment implements
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 
         // Open the shared preferences
-//        mPrefs = getSharedPreferences("SharedPreferences",
-//                Context.MODE_PRIVATE);
-
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         // Get a SharedPreferences editor
         mEditor = mPrefs.edit();
@@ -260,6 +311,8 @@ public class MapFragment extends Fragment implements
     private final static int
             CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
+
+
     @Override
     public void onLocationChanged(Location location) {
         // Report to the UI that the location was updated
@@ -268,7 +321,19 @@ public class MapFragment extends Fragment implements
                 Double.toString(location.getLongitude());
         mCurrentLocation = location;
         if(once) {
-            getAddress();
+//            getAddress();
+            MapsActivity activity = (MapsActivity)getActivity();
+            boolean ifUser = activity.ifUser;
+            if (ifUser) {
+                ThisApplication app = (ThisApplication) getActivity().getApplication();
+//                logInUser(app.getUser());
+                advanceLocation(app.getParseUser());
+//                advanceLocation(app.getUser());
+            }
+            else {
+                Toast.makeText(getActivity(), "Could not connect to the internet"
+                        , Toast.LENGTH_LONG).show();
+            }
             once = false;
         }
 //        Log.v(LOG_TAG, "Location changed...");
@@ -479,6 +544,48 @@ public class MapFragment extends Fragment implements
                     // something went wrong
                     progressBar.setVisibility(View.GONE);
                     textView.setText("'playerName' could not be found!");
+                }
+            }
+        });
+    }
+
+
+
+    public void advanceLocation(User user){
+        LocationPost locationPost = new LocationPost();
+        locationPost.setUser(user);
+        locationPost.setLocation(mCurrentLocation);
+        locationPost.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e==null){
+                    ((TextView)mRootview.findViewById(R.id.address_location))
+                            .setText(mCurrentLocation.toString());
+                }
+                else {
+                    Toast.makeText(getActivity(), "Could not save location!!!", Toast.LENGTH_LONG).show();
+                    Log.e(LOG_TAG,"Error: "+ e);
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void advanceLocation(ParseUser user){
+        LocationPost locationPost = new LocationPost();
+        locationPost.setUser(user);
+        locationPost.setLocation(mCurrentLocation);
+        locationPost.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e==null){
+                    ((TextView)mRootview.findViewById(R.id.address_location))
+                            .setText(mCurrentLocation.toString());
+                }
+                else {
+                    Toast.makeText(getActivity(), "Could not save location!!!", Toast.LENGTH_LONG).show();
+                    Log.e(LOG_TAG,"Error: "+ e);
+                    e.printStackTrace();
                 }
             }
         });

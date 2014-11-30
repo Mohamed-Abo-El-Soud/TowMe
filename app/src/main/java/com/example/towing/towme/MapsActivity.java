@@ -36,8 +36,12 @@ public class MapsActivity extends
     private ListView mDrawerList;
     private ActionBarDrawerToggle mToggle;
 
+    public static boolean ifUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        ifUser = getIntent().getBooleanExtra(Intent.EXTRA_TEXT,false);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
@@ -56,7 +60,8 @@ public class MapsActivity extends
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mToggle.syncState();
+        if(mToggle != null)
+            mToggle.syncState();
     }
 
     @Override

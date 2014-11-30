@@ -8,6 +8,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 /**
  * Created by ahmedabdalla on 14-11-26.
@@ -30,7 +32,24 @@ public class OptionFragment extends Fragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_option, container, false);
+
+        final View rootView = inflater.inflate(R.layout.fragment_option, container, false);
+
+        Button button = (Button)rootView.findViewById(R.id.refresh_button);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ThisApplication thisApplication = (ThisApplication)getActivity().getApplication();
+                User user = thisApplication.getUserInfo();
+                TextView userNameField = (TextView)rootView.findViewById(R.id.user_name_field);
+                TextView passWordField = (TextView)rootView.findViewById(R.id.pass_word_field);
+                userNameField.setText(user.getUserName());
+                passWordField.setText(user.getPassWordByPass());
+            }
+        });
+
+        return rootView;
     }
 
     @Override
