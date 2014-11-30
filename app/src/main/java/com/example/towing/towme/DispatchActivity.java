@@ -12,10 +12,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
+import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.List;
 import java.util.zip.Inflater;
 
 /**
@@ -23,17 +29,12 @@ import java.util.zip.Inflater;
  */
 public class DispatchActivity extends FragmentActivity {
 
-    FragmentActivity that = this;
+    public static final String LOG_TAG = DispatchActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dispatch);
-
-        if (savedInstanceState == null) {
-//            initializeDrawer();
-        }
 
     }
 
@@ -45,32 +46,74 @@ public class DispatchActivity extends FragmentActivity {
         progressBar.setVisibility(View.VISIBLE);
         TextView startingText = (TextView)findViewById(R.id.dispatch_starting_text);
         startingText.setVisibility(View.VISIBLE);
-        ThisApplication thisApplication = (ThisApplication)getApplication();
-        logInUser(thisApplication.getUser());
+        userInitialization();
     }
 
-    public void logInUser(User user){
-        ParseUser.logInInBackground(user.getUserName(), user.getPassWordByPass(), new LogInCallback() {
-            public void done(ParseUser user, ParseException e) {
-                if (user != null) {
-                    // Hooray! The user is logged in.
-                    Log.v("ParseUser","Log in successful");
-                    ThisApplication app = (ThisApplication)getApplication();
-                    app.setParseUser(user);
-                    moveOn(true);
-                } else {
-                    // Login failed. Look at the ParseException to see what happened.
-                    Toast.makeText(that, "Could not connect to the internet"
-                            , Toast.LENGTH_LONG).show();
-                    moveOn(false);
-                }
+    private void userInitialization(){
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            // do stuff with the user
+            Utilites.setUser(currentUser);
+            getEntries();
+            moveOn(true);
+        } else {
+            // show the signup or login screen
+            createAnonymousUser();
+        }
+    }
 
+    private void createAnonymousUser(){
+        ParseAnonymousUtils.logIn(new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException e) {
+                if (e != null) {
+                    Log.d(LOG_TAG, "Anonymous login failed.");
+                } else {
+                    Log.d(LOG_TAG, "Anonymous user logged in.");
+                    Utilites.setUser(user);
+                    createNewLocationPost(user);
+                    moveOn(true);
+                }
             }
         });
-
     }
 
-    public void moveOn(boolean ifUser){
+
+    private void getEntries(){
+        ParseQuery<LocationPost> query = LocationPost.getQuery();
+        query.whereEqualTo("user", Utilites.getUser());
+        query.findInBackground(new FindCallback<LocationPost>() {
+            public void done(List<LocationPost> scoreList, ParseException e) {
+                if (e == null) {
+                    Log.d(LOG_TAG, "Retrieved " + scoreList.size() + " scores");
+                    if (scoreList.size() >= 1) {
+                        clearMostEntries(scoreList);
+                        Utilites.setLocationPost(scoreList.get(0));
+                    }
+                    else {
+                        createNewLocationPost(Utilites.getUser());
+                    }
+                } else {
+                    Log.d(LOG_TAG, "Error: " + e.getMessage());
+                    createNewLocationPost(Utilites.getUser());
+                }
+            }
+        });
+    }
+
+    private void clearMostEntries(List<LocationPost> list){
+        for (int i = 1; i < list.size(); i++) {
+            list.get(i).deleteInBackground();
+        }
+    }
+
+    private void createNewLocationPost(ParseUser user){
+        LocationPost locationPost = new LocationPost();
+        locationPost.setUser(user);
+        Utilites.setLocationPost(locationPost);
+    }
+
+    private void moveOn(boolean ifUser){
         ProgressBar progressBar = (ProgressBar)findViewById(R.id.dispatch_progress);
         progressBar.setVisibility(View.GONE);
         TextView startingText = (TextView)findViewById(R.id.dispatch_starting_text);
@@ -78,7 +121,8 @@ public class DispatchActivity extends FragmentActivity {
         Intent intent = new Intent(this,MapsActivity.class);
         intent.putExtra(Intent.EXTRA_TEXT,ifUser);
         startActivity(intent);
-
     }
+
+
 
 }

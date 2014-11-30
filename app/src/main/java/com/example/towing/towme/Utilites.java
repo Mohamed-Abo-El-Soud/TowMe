@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.parse.ParseUser;
+
 /**
  * Created by Mohamed on 14-11-29.
  */
-public class Utilites {
+public class Utilites{
 
     private static final String FIRST_TIME_KEY = ".first_time_key_";
+    private static ParseUser mUser = null;
+    private static LocationPost mPost = null;
 
     public static boolean checkIfFirstTime(Context context){
         SharedPreferences sharedPreferences =
@@ -43,4 +47,23 @@ public class Utilites {
         return string;
     }
 
+
+
+    public static ParseUser getUser() {
+        return mUser;
+    }
+
+
+    public static LocationPost getLocationPost() {
+        return mPost;
+    }
+
+    public static void setUser(ParseUser user) {
+        mUser = user;
+    }
+
+
+    public static void setLocationPost(LocationPost locationPost) {
+        mPost = locationPost;
+    }
 }

@@ -37,17 +37,17 @@ public class OptionFragment extends Fragment implements
 
         Button button = (Button)rootView.findViewById(R.id.refresh_button);
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ThisApplication thisApplication = (ThisApplication)getActivity().getApplication();
-                User user = thisApplication.getUserInfo();
-                TextView userNameField = (TextView)rootView.findViewById(R.id.user_name_field);
-                TextView passWordField = (TextView)rootView.findViewById(R.id.pass_word_field);
-                userNameField.setText(user.getUserName());
-                passWordField.setText(user.getPassWordByPass());
-            }
-        });
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ThisApplication thisApplication = (ThisApplication)getActivity().getApplication();
+//                User user = thisApplication.getUserInfo();
+//                TextView userNameField = (TextView)rootView.findViewById(R.id.user_name_field);
+//                TextView passWordField = (TextView)rootView.findViewById(R.id.pass_word_field);
+//                userNameField.setText(user.getUserName());
+//                passWordField.setText(user.getPassWordByPass());
+//            }
+//        });
 
         return rootView;
     }
