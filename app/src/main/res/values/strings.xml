@@ -15,4 +15,6 @@
         <item>@drawable/ic_launcher</item>
     </array>
     <string name="dispatch_starting">Starting...</string>
+
+    <string name="your_location_title">Your Location</string>
 </resources>

@@ -29,27 +29,34 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
     protected GmapInteraction mInteraction;
     protected Location mLocation;
     protected String mAddress = null;
+    protected OnTaskCompleted mListener;
 
-    public GetAddressTask(Context context,GmapInteraction interaction
-            ,ProgressBar activityIndicator,Location location) {
-        this(context,interaction
-                ,activityIndicator,location,null);
+    public interface OnTaskCompleted{
+        void onTaskCompleted(Location location,String address);
     }
 
     public GetAddressTask(Context context,GmapInteraction interaction
-            ,ProgressBar activityIndicator,Location location,String address) {
+            ,ProgressBar activityIndicator,Location location,OnTaskCompleted listener) {
+        this(context,interaction
+                ,activityIndicator,location,null,listener);
+    }
+
+    public GetAddressTask(Context context,GmapInteraction interaction
+            ,ProgressBar activityIndicator,Location location,String address,OnTaskCompleted listener) {
         super();
         mInteraction = interaction;
         mContext = context;
         mActivityIndicator = activityIndicator;
         mLocation = location;
         mAddress = address;
+        mListener = listener;
     }
 
     @Override
     protected void onPreExecute() {
         // Show the activity indicator
-        mActivityIndicator.setVisibility(View.VISIBLE);
+        if(mActivityIndicator!=null)
+            mActivityIndicator.setVisibility(View.VISIBLE);
 
         try {
             // Ensure that a Geocoder services is available
@@ -144,8 +151,12 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
     @Override
     protected void onPostExecute(Void mVoid) {
         // Set activity indicator visibility to "gone"
-        mActivityIndicator.setVisibility(View.GONE);
+        if(mActivityIndicator!=null)
+            mActivityIndicator.setVisibility(View.GONE);
         if(mAddress == null) return;
-        mInteraction.addMarker("Your Location",mAddress,mLocation);
+//        mInteraction.addMarker("Your Location",mAddress,mLocation);
+//        mInteraction.viewLocation(mLocation);
+        if(mListener!=null)
+            mListener.onTaskCompleted(mLocation,mAddress);
     }
 }

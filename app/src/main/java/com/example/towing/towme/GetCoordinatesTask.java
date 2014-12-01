@@ -22,13 +22,13 @@ public class GetCoordinatesTask extends GetAddressTask {
 
 
     public GetCoordinatesTask(Context context, GmapInteraction interaction
-            , ProgressBar activityIndicator, String address) {
-        this(context, interaction, activityIndicator, null, address);
+            , ProgressBar activityIndicator, String address,OnTaskCompleted listener) {
+        this(context, interaction, activityIndicator, null, address,listener);
     }
 
     public GetCoordinatesTask(Context context, GmapInteraction interaction
-            , ProgressBar activityIndicator, Location location, String address) {
-        super(context, interaction, activityIndicator, location, address);
+            , ProgressBar activityIndicator, Location location, String address,OnTaskCompleted listener) {
+        super(context, interaction, activityIndicator, location, address,listener);
     }
 
     @Override
@@ -83,8 +83,9 @@ public class GetCoordinatesTask extends GetAddressTask {
     protected void onPostExecute(Void mVoid) {
         // Set activity indicator visibility to "gone"
         mActivityIndicator.setVisibility(View.GONE);
-        super.onPostExecute(mVoid);
-        if(mLocation == null) return;
-        mInteraction.addMarker("entered location",mAddress,mLocation);
+//        if(mLocation == null) return;
+//        mInteraction.addMarker("entered location",mAddress,mLocation);
+        if(mListener!=null)
+            mListener.onTaskCompleted(mLocation,mAddress);
     }
 }

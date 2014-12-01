@@ -76,7 +76,7 @@ public class MapFragment extends Fragment implements
     LocationRequest mLocationRequest;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private GmapInteraction mapInterface = new GmapInteraction();
+    private Placer mPlacer;
     private LocationClient mLocationClient;
     boolean mUpdatesRequested;
     boolean isConnected = false;
@@ -221,7 +221,7 @@ public class MapFragment extends Fragment implements
             Fragment mapFragment = getChildFragmentManager().findFragmentById(R.id.map_fragment);
             if (mapFragment == null) return;
             mMap = ((SupportMapFragment)mapFragment).getMap();
-            mapInterface.setMap(mMap);
+            mPlacer = new Placer(mMap,getActivity(),mRootview);
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
 //                setUpMap();
@@ -263,8 +263,8 @@ public class MapFragment extends Fragment implements
 //            if (ifUser) {
 //                ThisApplication app = (ThisApplication) getActivity().getApplication();
 ////                logInUser(app.getUser());
-//                advanceLocation(app.getParseUser());
-////                advanceLocation(app.getUser());
+//                uploadLocation(app.getParseUser());
+////                uploadLocation(app.getUser());
 //            }
 //            else {
 //                Toast.makeText(getActivity(), "Could not connect to the internet"
@@ -282,13 +282,14 @@ public class MapFragment extends Fragment implements
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
         mCurrentLocation = location;
-        if(once) {
-            newAdvanceLocation();
-            getAddress();
-//            getCoords();
-            once = false;
-        }
-        Toast.makeText(getActivity(), "Location changed...", Toast.LENGTH_SHORT).show();
+//        if(once) {
+////            newAdvanceLocation();
+////            getAddress();
+////            getCoords();
+//            once = false;
+//        }
+        mPlacer.update(mCurrentLocation);
+//        Toast.makeText(getActivity(), "Location changed...", Toast.LENGTH_SHORT).show();
     }
 
     // Define a DialogFragment that displays the error dialog
@@ -467,43 +468,43 @@ public class MapFragment extends Fragment implements
      * android:onClick="getAddress". The method is invoked whenever the
      * user clicks the button.
      */
-    public void getAddress() {
-        new GetAddressTask(getActivity()
-                        ,mapInterface
-                        ,(ProgressBar)mRootview.findViewById(R.id.address_progress)
-                ,mCurrentLocation).execute();
-    }
+//    public void getAddress() {
+//        new GetAddressTask(getActivity()
+//                        ,mapInterface
+//                        ,(ProgressBar)mRootview.findViewById(R.id.address_progress)
+//                ,mCurrentLocation).execute();
+//    }
+//
+//    public void getCoords() {
+//        new GetCoordinatesTask(getActivity()
+//                ,mapInterface
+//                ,(ProgressBar)mRootview.findViewById(R.id.address_progress)
+//                ,
+//                // TODO: add an address search
+//                null
+//        ).execute();
+//    }
 
-    public void getCoords() {
-        new GetCoordinatesTask(getActivity()
-                ,mapInterface
-                ,(ProgressBar)mRootview.findViewById(R.id.address_progress)
-                ,
-                // TODO: add an address search
-                null
-        ).execute();
-    }
-
-    public void newAdvanceLocation(){
-        LocationPost locationPost = Utilites.getLocationPost();
-        if (locationPost == null) return;
-        locationPost.fetchInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject parseObject, ParseException e) {
-                if(e==null) {
-                    LocationPost locationP = (LocationPost) parseObject;
-                    locationP.setLocation(mCurrentLocation);
-                    locationP.saveInBackground();
-                    ((TextView)mRootview.findViewById(R.id.address_location))
-                            .setText(mCurrentLocation.toString());
-                }
-                else {
-                    Toast.makeText(getActivity(), "Could not get location", Toast.LENGTH_LONG).show();
-                    Log.e(LOG_TAG,"Error: "+ e);
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+//    public void newAdvanceLocation(){
+//        LocationPost locationPost = Utilites.getLocationPost();
+//        if (locationPost == null) return;
+//        locationPost.fetchInBackground(new GetCallback<ParseObject>() {
+//            @Override
+//            public void done(ParseObject parseObject, ParseException e) {
+//                if(e==null) {
+//                    LocationPost locationP = (LocationPost) parseObject;
+//                    locationP.setLocation(mCurrentLocation);
+//                    locationP.saveInBackground();
+////                    ((TextView)mRootview.findViewById(R.id.address_location))
+////                            .setText(mCurrentLocation.toString());
+//                }
+//                else {
+//                    Toast.makeText(getActivity(), "Could not get location", Toast.LENGTH_LONG).show();
+//                    Log.e(LOG_TAG,"Error: "+ e);
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
 }
