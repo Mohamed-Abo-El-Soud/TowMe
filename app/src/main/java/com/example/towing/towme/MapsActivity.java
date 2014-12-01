@@ -40,12 +40,9 @@ public class MapsActivity extends
     private ListView mDrawerList;
     private ActionBarDrawerToggle mToggle;
 
-    public static boolean ifUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        ifUser = getIntent().getBooleanExtra(Intent.EXTRA_TEXT,false);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
@@ -149,32 +146,20 @@ public class MapsActivity extends
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-
-        // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        // Assumes current activity is the searchable activity
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+//        MenuItem searchItem = menu.findItem(R.id.action_search);
+//        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+//
+//        // Get the SearchView and set the searchable configuration
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        // Assumes current activity is the searchable activity
+//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
 
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        }
-        if (id == R.id.action_options) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, new OptionFragment())
-                    .addToBackStack(null)
-                    .commit();
-            return true;
-        }
         // handle the drawer touch listener
         if (mToggle.onOptionsItemSelected(item)) {
             return true;

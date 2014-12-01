@@ -58,15 +58,6 @@
                 android:value="com.example.towing.towme.DispatchActivity"
                 />
         </activity>
-        <activity
-            android:name=".SettingsActivity"
-            android:parentActivityName=".MapsActivity"
-            >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVTIY"
-                android:value="com.example.towing.towme.MapsActivity"
-                />
-            </activity>
     </application>
 
 </manifest>
