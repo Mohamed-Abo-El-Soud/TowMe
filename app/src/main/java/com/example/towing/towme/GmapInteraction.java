@@ -10,6 +10,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseGeoPoint;
 
+import java.security.Provider;
+
 /**
  * Created by Mohamed on 14-11-30.
  */
@@ -51,6 +53,14 @@ public class GmapInteraction {
     public ParseGeoPoint getGeoPoint(Location location){
         if (location == null) return null;
         return new ParseGeoPoint(location.getLatitude(),location.getLongitude());
+    }
+
+    public Location getLocation(ParseGeoPoint parseGeoPoint){
+        Location result = new Location("");
+        result.setLatitude(parseGeoPoint.getLatitude());
+        result.setLongitude(parseGeoPoint.getLongitude());
+        return result;
+
     }
 
     public void viewLocation(Location location) {

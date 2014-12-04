@@ -163,6 +163,7 @@ public class Placer {
                     Toast.makeText(mContext, "received all truckers", Toast.LENGTH_LONG).show();
                     ParseGeoPoint geoPoint = parseObject.getParseGeoPoint("location");
                     otherMarkers.add(interaction.addMarker((String)parseObject.get("place"),null,geoPoint));
+                    if(mListener!=null)mListener.showDialog(location,interaction.getLocation(geoPoint));
                 } else {
                     Log.e(LOG_TAG, "Error: " + e);
                     e.printStackTrace();
@@ -172,14 +173,14 @@ public class Placer {
 
     }
 
-    public void requestNavigation(Location sAddress, Location dAddress){
+    interface dialogListener{
+        void showDialog(Location source, Location destination);
+    }
 
-        final Intent intent = new Intent(Intent.ACTION_VIEW
-                , Uri.parse("http://maps.google.com/maps?" + "saddr=" + sAddress.getLatitude()
-                + "," + sAddress.getLongitude() + "&daddr=" + dAddress.getLatitude()
-                + "," + dAddress.getLongitude()));
-        intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
-        mContext.startActivity(intent);
+    private dialogListener mListener;
+
+    public void setDialogListener(dialogListener listener){
+        mListener = listener;
     }
 
     public void putMarkerPositions(List<ParseObject> list,ParseGeoPoint point){

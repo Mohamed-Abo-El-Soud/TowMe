@@ -229,6 +229,8 @@ public class MapFragment extends Fragment implements
             if (mapFragment == null) return;
             mMap = ((SupportMapFragment)mapFragment).getMap();
             mPlacer = new Placer(mMap,getActivity(),mRootview);
+            MapsActivity activity = (MapsActivity)getActivity();
+            mPlacer.setDialogListener(activity);
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
 //                setUpMap();

@@ -7,6 +7,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.location.Location;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -32,13 +33,16 @@ import java.util.Map;
 
 public class MapsActivity extends
         ActionBarActivity
-//        FragmentActivity
+    implements Placer.dialogListener
 {
     // fields for drawers
     private String[] mDrawerOptions;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mToggle;
+
+    private NavigationDialog mDialog;
+    public static final String DIALOG_KEY = ".dialog_key.";
 
 
     @Override
@@ -54,8 +58,19 @@ public class MapsActivity extends
 
         if (savedInstanceState == null) {
             initializeDrawer();
+            mDialog = new NavigationDialog();
         }
 
+    }
+
+    @Override
+    public void showDialog(Location source,Location destination) {
+        if (mDialog==null) return;
+        Bundle bundle = new Bundle();
+        Location[] locations = {source,destination};
+        bundle.putParcelableArray(DIALOG_KEY,locations);
+        mDialog.setArguments(bundle);
+        mDialog.show(getSupportFragmentManager(), null);
     }
 
     @Override

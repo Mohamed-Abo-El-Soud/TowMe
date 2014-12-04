@@ -3,7 +3,11 @@ package com.example.towing.towme;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 
 /**
@@ -17,7 +21,15 @@ public class NavigationDialog extends DialogFragment {
         builder.setMessage(R.string.navigation_prompt)
                 .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // FIRE ZE MISSILES!
+                        Parcelable[] locations = getArguments().getParcelableArray(MapsActivity.DIALOG_KEY);
+                        Location sAddress = (Location)locations[0];
+                        Location dAddress = (Location)locations[1];
+                        final Intent intent = new Intent(Intent.ACTION_VIEW
+                                , Uri.parse("http://maps.google.com/maps?" + "saddr=" + sAddress.getLatitude()
+                                + "," + sAddress.getLongitude() + "&daddr=" + dAddress.getLatitude()
+                                + "," + dAddress.getLongitude()));
+                        intent.setClassName("com.google.android.apps.maps","com.google.android.maps.MapsActivity");
+                        startActivity(intent);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
