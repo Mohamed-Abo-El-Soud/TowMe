@@ -3,8 +3,15 @@ package com.example.towing.towme;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.parse.ParseUser;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Mohamed on 14-11-29.
@@ -66,4 +73,6 @@ public class Utilites{
     public static void setLocationPost(LocationPost locationPost) {
         mPost = locationPost;
     }
+
+
 }

@@ -14,7 +14,11 @@
         <item>@drawable/ic_action_search</item>
         <item>@drawable/ic_launcher</item>
     </array>
-    <string name="dispatch_starting">Starting...</string>
+    <string name="dispatch_starting">Starting…</string>
 
     <string name="your_location_title">Your Location</string>
+
+    <string name="navigation_prompt">Would you like directions to your destination?</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Yes</string>
 </resources>

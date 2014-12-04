@@ -33,6 +33,7 @@ public class GmapInteraction {
             uiSettings.setRotateGesturesEnabled(false);
             uiSettings.setCompassEnabled(false);
             uiSettings.setTiltGesturesEnabled(false);
+            mMap.setMyLocationEnabled(true);
         }
     }
 
@@ -47,6 +48,10 @@ public class GmapInteraction {
         return new LatLng(location.getLatitude(),location.getLongitude());
     }
 
+    public ParseGeoPoint getGeoPoint(Location location){
+        if (location == null) return null;
+        return new ParseGeoPoint(location.getLatitude(),location.getLongitude());
+    }
 
     public void viewLocation(Location location) {
         if (mMap == null)return;

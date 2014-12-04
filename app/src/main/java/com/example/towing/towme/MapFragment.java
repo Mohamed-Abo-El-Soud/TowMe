@@ -1,7 +1,9 @@
 package com.example.towing.towme;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -40,6 +42,8 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.util.Date;
+
 /**
  * Created by ahmedabdalla on 14-11-26.
  */
@@ -70,6 +74,9 @@ public class MapFragment extends Fragment implements
     // A fast frequency ceiling in milliseconds
     private static final long FASTEST_INTERVAL =
             MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
+    // Amount of milliseconds in a day
+    private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
+    private static long lastTimeChecked = System.currentTimeMillis();
 
 
     // Define an object that holds accuracy and frequency parameters
@@ -201,7 +208,7 @@ public class MapFragment extends Fragment implements
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
      * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
+     * call {@link #onLocationChanged(android.location.Location)} once when {@link #mMap} is not null.
      * <p/>
      * If it isn't installed {@link com.google.android.gms.maps.SupportMapFragment} (and
      * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
@@ -230,50 +237,9 @@ public class MapFragment extends Fragment implements
         }
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
-    private void setUpMap() {
-//        Location m = mMap.getMyLocation();
-//        if (m== null)
-//            Log.v(LOG_TAG,"try again");
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-
-    }
-
     private final static int
             CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
-
-
-//    @Override
-//    public void onLocationChanged(Location location) {
-//        // Report to the UI that the location was updated
-//        String msg = "Updated Location: " +
-//                Double.toString(location.getLatitude()) + "," +
-//                Double.toString(location.getLongitude());
-//        mCurrentLocation = location;
-//        if(once) {
-////            getAddress();
-//            MapsActivity activity = (MapsActivity)getActivity();
-//            boolean ifUser = activity.ifUser;
-//            if (ifUser) {
-//                ThisApplication app = (ThisApplication) getActivity().getApplication();
-////                logInUser(app.getUser());
-//                uploadLocation(app.getParseUser());
-////                uploadLocation(app.getUser());
-//            }
-//            else {
-//                Toast.makeText(getActivity(), "Could not connect to the internet"
-//                        , Toast.LENGTH_LONG).show();
-//            }
-//            once = false;
-//        }
-//        Toast.makeText(getActivity(), "Location changed...", Toast.LENGTH_SHORT).show();
-//    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -282,12 +248,6 @@ public class MapFragment extends Fragment implements
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
         mCurrentLocation = location;
-//        if(once) {
-////            newAdvanceLocation();
-////            getAddress();
-////            getCoords();
-//            once = false;
-//        }
         mPlacer.update(mCurrentLocation);
 //        Toast.makeText(getActivity(), "Location changed...", Toast.LENGTH_SHORT).show();
     }
@@ -344,14 +304,6 @@ public class MapFragment extends Fragment implements
         // If already requested, start periodic updates
         if (mUpdatesRequested) {
             mLocationClient.requestLocationUpdates(mLocationRequest,this);
-//            servicesConnected();
-//            mCurrentLocation = mLocationClient.getLastLocation();
-//            if (mCurrentLocation != null)
-//                mMap.addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude()
-//                        , mCurrentLocation.getLongitude())));
-//            Boolean cow = mLocationClient.isConnected();//.getLastLocation();
-//            if (cow == null)
-//                Log.v(LOG_TAG, "began requests");
         }
     }
 
@@ -400,111 +352,5 @@ public class MapFragment extends Fragment implements
 
     }
 
-
-    /*
-    * Handle results returned to the FragmentActivity
-    * by Google Play services
-    */
-//    @Override
-//    protected void onActivityResult(
-//            int requestCode, int resultCode, Intent data) {
-//        // Decide what to do based on the original request code
-//        switch (requestCode) {
-//            case CONNECTION_FAILURE_RESOLUTION_REQUEST:
-//            /*
-//             * If the result code is Activity.RESULT_OK, try
-//             * to connect again
-//             */
-//                switch (resultCode) {
-//                    case Activity.RESULT_OK:
-//                    /*
-//                     * Try the request again
-//                     */
-//                        break;
-//                }
-//        }
-//    }
-
-    private boolean servicesConnected() {
-        // Check that Google Play services is available
-        int resultCode =
-                GooglePlayServicesUtil.
-                        isGooglePlayServicesAvailable(getActivity());
-        // If Google Play services is available
-        if (ConnectionResult.SUCCESS == resultCode) {
-            // In debug mode, log the status
-            Log.d("Location Updates",
-                    "Google Play services is available.");
-            // Continue
-            return true;
-            // Google Play services was not available for some reason
-        } else {
-            // Get the error code
-            int errorCode = resultCode;//connectionResult.getErrorCode();
-            // Get the error dialog from Google Play services
-            Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                    errorCode,
-                    getActivity(),
-                    CONNECTION_FAILURE_RESOLUTION_REQUEST);
-            // If Google Play services can provide an error dialog
-            if (errorDialog != null) {
-                // Create a new DialogFragment for the error dialog
-                ErrorDialogFragment errorFragment =
-                        new ErrorDialogFragment();
-                // Set the dialog in the DialogFragment
-                errorFragment.setDialog(errorDialog);
-                // Show the error dialog in the DialogFragment
-                errorFragment.show(
-                        getSupportFragmentManager(),
-                        "Location Updates");
-
-            }
-        }
-        return false;
-    }
-
-    /**
-     * The "Get Address" button in the UI is defined with
-     * android:onClick="getAddress". The method is invoked whenever the
-     * user clicks the button.
-     */
-//    public void getAddress() {
-//        new GetAddressTask(getActivity()
-//                        ,mapInterface
-//                        ,(ProgressBar)mRootview.findViewById(R.id.address_progress)
-//                ,mCurrentLocation).execute();
-//    }
-//
-//    public void getCoords() {
-//        new GetCoordinatesTask(getActivity()
-//                ,mapInterface
-//                ,(ProgressBar)mRootview.findViewById(R.id.address_progress)
-//                ,
-//                // TODO: add an address search
-//                null
-//        ).execute();
-//    }
-
-//    public void newAdvanceLocation(){
-//        LocationPost locationPost = Utilites.getLocationPost();
-//        if (locationPost == null) return;
-//        locationPost.fetchInBackground(new GetCallback<ParseObject>() {
-//            @Override
-//            public void done(ParseObject parseObject, ParseException e) {
-//                if(e==null) {
-//                    LocationPost locationP = (LocationPost) parseObject;
-//                    locationP.setLocation(mCurrentLocation);
-//                    locationP.saveInBackground();
-////                    ((TextView)mRootview.findViewById(R.id.address_location))
-////                            .setText(mCurrentLocation.toString());
-//                }
-//                else {
-//                    Toast.makeText(getActivity(), "Could not get location", Toast.LENGTH_LONG).show();
-//                    Log.e(LOG_TAG,"Error: "+ e);
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//    }
 
 }

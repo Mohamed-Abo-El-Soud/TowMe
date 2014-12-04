@@ -19,58 +19,6 @@ import com.parse.SignUpCallback;
 
 @ParseClassName("LocationPost")
 public class LocationPost extends ParseObject {
-//
-//    public String getText() {
-//        return getString("text");
-//    }
-//
-//    public void setText(String value) {
-//        put("text", value);
-//    }
-
-
-    public static LocationPost create(User user,Location location){
-        LocationPost locationPost = new LocationPost();
-        String username = user.getUserName();
-        String password = user.getPassWordByPass();
-        ParseUser parseUser = new ParseUser();
-        parseUser.setUsername(username);
-        parseUser.setPassword(password);
-        locationPost.setUser(parseUser);
-        locationPost.LogIn(username,password);
-        return locationPost;
-    }
-
-    public Boolean LogIn(String username, String password){
-//        String password = user.getPassWordByPass();
-//        String username = user.getUserName();
-        boolean check = true;
-        ParseUser.logInInBackground(username, password, new LogInCallback() {
-            public void done(ParseUser user, ParseException e) {
-                if (user != null) {
-                    // Hooray! The user is logged in.
-                } else {
-                    // Login failed. Look at the ParseException to see what happened.
-                    Log.v("ParseUser", "cannot log in");
-//                    user.signUpInBackground(new SignUpCallback() {
-//                        @Override
-//                        public void done(ParseException e) {
-//                            if(user!=null){
-//
-//                            }else {
-//                                Log.v("ParseUser", "cannot log in");
-//                            }
-//                        }
-//                    }
-//                  );
-//                    ParseUser parseUser = new ParseUser();
-//                    parseUser.setUsername(username);
-//                    parseUser.setPassword(password);
-                }
-            }
-        });
-        return true;
-    }
 
     public ParseUser getUser() {
         return getParseUser("user");
@@ -78,13 +26,6 @@ public class LocationPost extends ParseObject {
 
     public void setUser(ParseUser value) {
         put("user", value);
-    }
-
-    public void setUser(User user) {
-        ParseUser parseUser = new ParseUser();
-        parseUser.setUsername(user.getUserName());
-        parseUser.setPassword(user.getPassWordByPass());
-        setUser(parseUser);
     }
 
     public ParseGeoPoint getLocation() {

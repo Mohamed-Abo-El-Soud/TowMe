@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseAnonymousUtils;
 import com.parse.ParseException;
@@ -20,7 +21,9 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
+import java.util.Date;
 import java.util.List;
 import java.util.zip.Inflater;
 
@@ -30,6 +33,8 @@ import java.util.zip.Inflater;
 public class DispatchActivity extends FragmentActivity {
 
     public static final String LOG_TAG = DispatchActivity.class.getSimpleName();
+    public static final String IS_ANONYMOUS = "isAnonymous";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +55,23 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void userInitialization(){
-        ParseUser currentUser = ParseUser.getCurrentUser();
+        final ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
-            // do stuff with the user
-            Utilites.setUser(currentUser);
-            getEntries();
-            moveOn(true);
+            currentUser.fetchInBackground(new GetCallback<ParseUser>() {
+                @Override
+                public void done(ParseUser parseUser, ParseException e) {
+                    if(parseUser==null) {
+                        // show the signup or login screen
+                        createAnonymousUser();
+                    }
+                    else{
+                        // do stuff with the user
+                        Utilites.setUser(currentUser);
+                        getEntries();
+                        moveOn(true);
+                    }
+                }
+            });
         } else {
             // show the signup or login screen
             createAnonymousUser();
@@ -63,6 +79,7 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void createAnonymousUser(){
+        ParseUser.logOut();
         ParseAnonymousUtils.logIn(new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException e) {
@@ -70,6 +87,16 @@ public class DispatchActivity extends FragmentActivity {
                     Log.d(LOG_TAG, "Anonymous login failed.");
                 } else {
                     Log.d(LOG_TAG, "Anonymous user logged in.");
+                    user.put(IS_ANONYMOUS, true);
+                    user.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if(e!=null){
+                                Log.e(LOG_TAG,"Error: "+e);
+                                e.printStackTrace();
+                            }
+                        }
+                    });
                     Utilites.setUser(user);
                     createNewLocationPost(user);
                     moveOn(true);
@@ -110,6 +137,7 @@ public class DispatchActivity extends FragmentActivity {
     private void createNewLocationPost(ParseUser user){
         LocationPost locationPost = new LocationPost();
         locationPost.setUser(user);
+        locationPost.saveInBackground();
         Utilites.setLocationPost(locationPost);
     }
 
@@ -119,7 +147,7 @@ public class DispatchActivity extends FragmentActivity {
         TextView startingText = (TextView)findViewById(R.id.dispatch_starting_text);
         startingText.setVisibility(View.GONE);
         Intent intent = new Intent(this,MapsActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT,ifUser);
+        intent.putExtra(Intent.EXTRA_TEXT, ifUser);
         startActivity(intent);
     }
 
