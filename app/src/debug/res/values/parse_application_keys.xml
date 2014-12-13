@@ -9,4 +9,7 @@
     <string name="parse_user_id_key">
         .userIdKey
     </string>
+    <string name="facebook_app_id">
+        1507675232833859
+    </string>
 </resources>

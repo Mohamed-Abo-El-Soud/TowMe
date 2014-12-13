@@ -1,15 +1,11 @@
-package com.example.towing.towme;
+package com.example.towing.towme.maps;
 
-import android.app.Activity;
-import android.app.Application;
 import android.app.Dialog;
-import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -18,10 +14,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.towing.towme.DrawerItemClickListener;
+import com.example.towing.towme.MapsActivity;
+import com.example.towing.towme.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -31,18 +28,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.parse.GetCallback;
-import com.parse.LogInCallback;
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
-
-import java.util.Date;
 
 /**
  * Created by ahmedabdalla on 14-11-26.
@@ -62,6 +47,8 @@ public class MapFragment extends Fragment implements
         return LOG_TAG;
     }
 
+    private final static int
+            CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     // Milliseconds per second
     private static final int MILLISECONDS_PER_SECOND = 1000;
     // Update frequency in seconds
@@ -239,8 +226,6 @@ public class MapFragment extends Fragment implements
         }
     }
 
-    private final static int
-            CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
 
     @Override

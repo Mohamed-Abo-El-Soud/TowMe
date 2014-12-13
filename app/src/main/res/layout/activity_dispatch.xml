@@ -1,67 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical"
+    android:weightSum="1">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:weightSum="1">
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="308dp"
+        android:layout_height="94dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.19"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:text="Tow Me"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/primary_dark"
+        android:textSize="48dp" />
 
-        <TextView
-            android:layout_width="308dp"
-            android:layout_height="94dp"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Tow Me"
-            android:id="@+id/textView2"
-            android:layout_gravity="center_horizontal"
-            android:textSize="48dp"
-            android:fontFamily="sans-serif-light"
-            android:textColor="@color/primary_dark"
-            android:gravity="center"
-            android:layout_weight="0.19" />
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="195dp"
+        android:layout_height="125dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.23"
+        android:src="@drawable/ic_launcher" />
 
-        <ImageView
-            android:layout_width="195dp"
-            android:layout_height="125dp"
-            android:id="@+id/imageView"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/ic_launcher"
-            android:layout_weight="0.23" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.46">
 
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_marginTop="30dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:weightSum="1"
-            android:gravity="center_vertical|center_horizontal">
+            android:layout_height="match_parent"
+            android:layout_marginTop="30dp"
+            android:gravity="center_vertical|center_horizontal"
+            android:orientation="vertical"
+            android:weightSum="1">
+
+            <Button
+                android:id="@+id/fb_logn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sign in with Facebook" />
+
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/g_plus_sign_in_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/anonymous_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sign in anonymously" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/dispatch_starting"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="30dp"
+            android:background="@color/grey_light"
+            android:gravity="center_vertical|center_horizontal"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:weightSum="1">
+
             <ProgressBar
                 style="?android:attr/progressBarStyleLarge"
-                android:id="@+id/dispatch_progress"
                 android:layout_width="123dp"
                 android:layout_height="103dp"
-                android:indeterminate="true"
-                android:visibility="gone" />
-            <!--<ImageView-->
-                <!--android:layout_width="123dp"-->
-                <!--android:layout_height="103dp"-->
-                <!--android:layout_gravity="center_horizontal"-->
-                <!--android:src="@drawable/ic_launcher"-->
-                <!--/>-->
+                android:indeterminate="true" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="40dp"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:fontFamily="sans-serif-light"
                 android:text="@string/dispatch_starting"
-                android:id="@+id/dispatch_starting_text"
-                android:visibility="gone" />
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </LinearLayout>
-    </LinearLayout>
-</RelativeLayout>
+    </FrameLayout>
+</LinearLayout>

@@ -1,7 +1,6 @@
-package com.example.towing.towme;
+package com.example.towing.towme.maps;
 
 import android.content.Context;
-import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -10,9 +9,6 @@ import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import com.google.android.gms.maps.GoogleMap;
 
 import java.io.IOException;
 import java.util.List;

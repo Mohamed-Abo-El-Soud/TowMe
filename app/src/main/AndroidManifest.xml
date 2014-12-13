@@ -6,6 +6,17 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
+    <!--
+    Permissions to attempt to sign through a google account
+    -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.NETWORK"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
+
+    <!--Permissions to get the user's phone number-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
     <!--
  The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but are recommended.
@@ -25,19 +36,31 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_key" />
-        <!--
-            android:label="@string/title_activity_maps"
-            -->
-        <activity
-            android:name="com.example.towing.towme.DispatchActivity">
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"/>
+        <activity android:name=".dispatch.DispatchActivity"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.example.towing.towme.MapsActivity"
+        <activity android:name="com.facebook.LoginActivity"
+            />
+        <activity android:name=".dispatch.ContactInfoActivity"
+            android:icon="@drawable/ic_launcher"
+            android:banner="@drawable/ic_launcher"
+            android:logo="@drawable/ic_launcher"
+            android:theme="@style/AppTheme">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVTIY"
+                android:value="com.example.towing.towme.DispatchActivity"
+                />
+        </activity>
+        <activity android:name="com.example.towing.towme.MapsActivity"
             android:icon="@drawable/ic_launcher"
             android:banner="@drawable/ic_launcher"
             android:logo="@drawable/ic_launcher"

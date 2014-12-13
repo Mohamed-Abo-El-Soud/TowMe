@@ -1,36 +1,28 @@
-package com.example.towing.towme;
+package com.example.towing.towme.maps;
 
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.towing.towme.LocationPost;
+import com.example.towing.towme.R;
+import com.example.towing.towme.Utilites;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.parse.DeleteCallback;
 import com.parse.FindCallback;
-import com.parse.FunctionCallback;
 import com.parse.GetCallback;
-import com.parse.ParseACL;
-import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseRole;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -173,7 +165,7 @@ public class Placer {
 
     }
 
-    interface dialogListener{
+    public interface dialogListener{
         void showDialog(Location source, Location destination);
     }
 

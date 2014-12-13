@@ -1,8 +1,15 @@
 package com.example.towing.towme;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -10,15 +17,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.plus.Plus;
 
 /**
  * Created by ahmedabdalla on 14-11-26.
  */
 public class OptionFragment extends Fragment implements
-        DrawerItemClickListener.FragmentWithName {
+        DrawerItemClickListener.FragmentWithName
+{
 
-    public static final String ARG_OPTION_NAME = ".option_name";
     public static final String LOG_TAG = OptionFragment.class.getSimpleName();
+    GoogleApiClient mGoogleApiClient;  // initialized in onCreate
+    private View mRootView;
+    private Context mContext;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,27 +49,18 @@ public class OptionFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        final View rootView = inflater.inflate(R.layout.fragment_option, container, false);
+        mRootView = inflater.inflate(R.layout.fragment_option, container, false);
 
-        Button button = (Button)rootView.findViewById(R.id.refresh_button);
+//        mRootView.findViewById(R.id.sign_in_button).setOnClickListener(this);
 
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ThisApplication thisApplication = (ThisApplication)getActivity().getApplication();
-//                User user = thisApplication.getUserInfo();
-//                TextView userNameField = (TextView)rootView.findViewById(R.id.user_name_field);
-//                TextView passWordField = (TextView)rootView.findViewById(R.id.pass_word_field);
-//                userNameField.setText(user.getUserName());
-//                passWordField.setText(user.getPassWordByPass());
-//            }
-//        });
+        mContext = getActivity();
 
-        return rootView;
+        return mRootView;
     }
 
     @Override
     public String getName() {
         return LOG_TAG;
     }
+
 }

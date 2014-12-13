@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="car_makes">
+        <item>Honda</item>
+        <item>Toyota</item>
+        <item>Hyundai</item>
+    </array>
+    <string-array  name="toyota_car_models">
+        <item>Camry</item>
+        <item>Corrolla</item>
+        <item>Sienna</item>
+        <item>Rava</item>
+        <item>Highlander</item>
+    </string-array>
+    <string-array name="honda_car_models">
+        <item>Accord</item>
+        <item>Civic</item>
+        <item>Oddessy</item>
+        <item>CR-V</item>
+        <item>Pilot</item>
+    </string-array >
+    <string-array  name="hyundai_car_models">
+        <item>Elantra</item>
+        <item>Sonata</item>
+        <item>Genesis</item>
+        <item>Tuscon</item>
+        <item>Santa-Fe</item>
+    </string-array >
+    <string name="verify_info_title">Verify your info</string>
+    <string name="select_car">Select your car</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="e_mail">E-mail</string>
+    <string name="submit">Get started</string>
+</resources>

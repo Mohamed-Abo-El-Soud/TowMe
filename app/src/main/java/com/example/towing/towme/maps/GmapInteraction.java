@@ -1,4 +1,4 @@
-package com.example.towing.towme;
+package com.example.towing.towme.maps;
 
 import android.location.Location;
 
