@@ -40,22 +40,22 @@ public class GmapInteraction {
     }
 
 
-    public LatLng getLatLng(Location location){
+    public static LatLng getLatLng(Location location){
         if(location == null) return null;
         return new LatLng(location.getLatitude(),location.getLongitude());
     }
 
-    public LatLng getLatLng(ParseGeoPoint location){
+    public static LatLng getLatLng(ParseGeoPoint location){
         if(location == null) return null;
         return new LatLng(location.getLatitude(),location.getLongitude());
     }
 
-    public ParseGeoPoint getGeoPoint(Location location){
+    public static ParseGeoPoint getGeoPoint(Location location){
         if (location == null) return null;
         return new ParseGeoPoint(location.getLatitude(),location.getLongitude());
     }
 
-    public Location getLocation(ParseGeoPoint parseGeoPoint){
+    public static Location getLocation(ParseGeoPoint parseGeoPoint){
         Location result = new Location("");
         result.setLatitude(parseGeoPoint.getLatitude());
         result.setLongitude(parseGeoPoint.getLongitude());

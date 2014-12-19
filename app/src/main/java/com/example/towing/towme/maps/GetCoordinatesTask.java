@@ -81,8 +81,6 @@ public class GetCoordinatesTask extends GetAddressTask {
 
     @Override
     protected void onPostExecute(Void mVoid) {
-        // Set activity indicator visibility to "gone"
-        mActivityIndicator.setVisibility(View.GONE);
 //        if(mLocation == null) return;
 //        mInteraction.addMarker("entered location",mAddress,mLocation);
         if(mListener!=null)

@@ -3,13 +3,11 @@ package com.example.towing.towme.dispatch;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -41,7 +39,7 @@ import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseQuery;
-import com.parse.ParseTwitterUtils;
+import com.parse.ParseRole;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -49,7 +47,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import com.example.towing.towme.SettingsFragment;
 
 /**
  * Created by Mohamed on 14-11-29.
@@ -99,10 +98,14 @@ public class DispatchActivity extends FragmentActivity
 
     /* A simple Call-Back helper interface
     * */
-    private interface simpleCallback{
+    public interface simpleCallback{
         void done(Object first, Object second);
 }
 
+    // representing whether to add a user to a role or to remove the user
+    private static final Boolean ADD_USER = true;
+    // representing whether to add a user to a role or to remove the user
+    private static final Boolean REMOVE_USER = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -330,17 +333,37 @@ public class DispatchActivity extends FragmentActivity
             currentUser.fetchInBackground(new GetCallback<ParseUser>() {
                 @Override
                 public void done(ParseUser parseUser, ParseException e) {
-                    if (parseUser == null) {
-                        // user has been deleted
-                        // do nothing
-                        if (findViewById(R.id.dispatch_starting).getVisibility() != View.GONE)
-                            findViewById(R.id.dispatch_starting).setVisibility(View.GONE);
-                    } else {
+//                    if (parseUser == null) {
+//                        // user has been deleted
+//                        // do nothing
+//                        if (findViewById(R.id.dispatch_starting).getVisibility() != View.GONE)
+//                            findViewById(R.id.dispatch_starting).setVisibility(View.GONE);
+//                    } else {
+//                        // check if the user has all the information filled out
+//                        if(parseUser.get(PHONE_NUMBER)!=null
+//                                &&parseUser.get(CAR_MODEL)!=null){
+//                            // user is already logged in
+//                            // skip the setup and go to the actual app
+//                            Utilites.setUser(currentUser);
+//                            getEntries();
+//                            startActivity(new Intent(that,MapsActivity.class));
+//                            if (findViewById(R.id.dispatch_starting).getVisibility() != View.GONE)
+//                                findViewById(R.id.dispatch_starting).setVisibility(View.GONE);
+//                        }
+//                    }
+                    // check if the user exists and
+                    // has all the information filled out
+                    if(parseUser != null && parseUser.get(CAR_MODEL)!=null){
                         // user is already logged in
                         // skip the setup and go to the actual app
                         Utilites.setUser(currentUser);
                         getEntries();
                         startActivity(new Intent(that,MapsActivity.class));
+                        if (findViewById(R.id.dispatch_starting).getVisibility() != View.GONE)
+                            findViewById(R.id.dispatch_starting).setVisibility(View.GONE);
+                    } else {
+                        // user has been deleted
+                        // do nothing
                         if (findViewById(R.id.dispatch_starting).getVisibility() != View.GONE)
                             findViewById(R.id.dispatch_starting).setVisibility(View.GONE);
                     }
@@ -444,9 +467,17 @@ public class DispatchActivity extends FragmentActivity
         Utilites.setLocationPost(locationPost);
     }
 
+    private boolean checkIfInfoIsComplete(ParseUser user){
+        return !(user.get(E_MAIL)==null
+                || user.get(FIRST_NAME)==null
+                || user.get(LAST_NAME)==null
+                || user.get(PHONE_NUMBER)==null
+                || user.get(CAR_MODEL)==null
+                || user.get(CAR_MAKE)==null
+                || user.get(CAR_YEAR)==null);
+    }
+
     private void moveOn(Bundle extraStuff){
-//        findViewById(R.id.dispatch_starting).setVisibility(View.GONE);
-//        Intent intent = new Intent(this,MapsActivity.class);
         Intent intent = new Intent(this,ContactInfoActivity.class);
         if(extraStuff!=null)
             intent.putExtra(ACCOUNT_INFO_KEY,extraStuff);
@@ -475,7 +506,7 @@ public class DispatchActivity extends FragmentActivity
 
     private void becomeUser(final String emailField){
         HashMap<String,String> emailInput = new HashMap<>();
-        emailInput.put("email", emailField);
+        emailInput.put(E_MAIL, emailField);
         ParseCloud.callFunctionInBackground(PARSE_CLOUD_GET_ACCESS_TOKEN_FUNCTION
                 ,emailInput,new FunctionCallback<Object>() {
             @Override
@@ -519,6 +550,7 @@ public class DispatchActivity extends FragmentActivity
                                 @Override
                                 public void done(Object first, Object second) {
                                     if(first!=null){
+                                        Utilites.getUser().put(E_MAIL, emailField);
                                         Utilites.getUser().put(IS_ANONYMOUS, false);
                                         Utilites.getUser().saveInBackground();
                                         Bundle info = (Bundle)first;
@@ -644,5 +676,106 @@ public class DispatchActivity extends FragmentActivity
             }
         }
     }
+
+    /**
+     * A helper function to be used in the {@link SettingsFragment} for debugging purposes
+     * */
+    public static void changeUserToTowTrucker (final Context context, final simpleCallback callback
+    ){
+        // remove the user from the regular drivers role
+        modifyUserInRole("Regular Driver",Utilites.getUser(),REMOVE_USER,
+                new simpleCallback() {
+            @Override
+            public void done(Object first, Object second) {
+                // check if the roleChange went through
+                if((Boolean)first){
+                    // the role change was successful
+                    // now add the user to the tow trucker role
+                    modifyUserInRole("Tow Trucker",Utilites.getUser(),ADD_USER,callback);
+                } else {
+                    // something went wrong
+                    // initiate the callback
+                    callback.done(first,second);
+                }
+            }
+        }
+        );
+
+    }
+
+
+    /**
+     * A helper function to be used in the {@link SettingsFragment} for debugging purposes
+     * */
+    public static void changeUserToRegularDriver (final Context context,
+                                                  final simpleCallback callback){
+        // add the user to the regular drivers role
+        modifyUserInRole("Regular Driver",Utilites.getUser(),ADD_USER,
+                new simpleCallback() {
+                    @Override
+                    public void done(Object first, Object second) {
+                        // check if the roleChange went through
+                        if((Boolean)first){
+                            // the role change was successful
+                            // now remove the user from the tow trucker role
+                            modifyUserInRole("Tow Trucker",Utilites.getUser(),REMOVE_USER,callback);
+                        } else {
+                            // something went wrong
+                            // initiate the callback
+                            callback.done(first,second);
+                        }
+                    }
+                }
+        );
+    }
+
+
+    /**
+     * A helper function that to either add or remove a user in a {@link com.parse.ParseRole}.
+     *
+     * @param roleName the name of role that is being modified (must a have the appropriate
+     *                 permissions edited).
+     * @param addOrRemove a parameter stating the user is going to be removed or added to the
+     *                    role. a value of {@value #ADD_USER} adds a user to the role and a value
+     *                    of {@value #REMOVE_USER} removes the user...
+     * @param callback a simple callback to be executed once the function completes.
+     * */
+    private static void modifyUserInRole(@NonNull String roleName, @NonNull final ParseUser user,
+                                  @NonNull final Boolean addOrRemove, final simpleCallback callback
+    ){
+        // get the role of regular drivers
+        ParseQuery<ParseRole> query = ParseRole.getQuery();
+        query.whereEqualTo("name",roleName);
+        query.getFirstInBackground(new GetCallback<ParseRole>() {
+            @Override
+            public void done(ParseRole parseRole, ParseException e) {
+                if(e==null && parseRole!=null){
+                    if(addOrRemove == ADD_USER){
+                        // a user is going to be added to the role
+                        parseRole.getUsers().add(user);
+                    } else if(addOrRemove == REMOVE_USER){
+                        // a user is going to be removed from the role
+                        parseRole.getUsers().remove(user);
+                    }
+                    parseRole.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if(e==null){
+                                if(callback!=null)
+                                    callback.done(true,null);
+                            }else{
+                                if(callback!=null)
+                                    callback.done(false,e);
+                            }
+                        }
+                    });
+                } else {
+                    if(callback!=null)
+                        callback.done(false,e);
+                }
+            }
+        });
+    }
+
 
 }

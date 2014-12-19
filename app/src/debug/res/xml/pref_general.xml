@@ -8,4 +8,10 @@
         android:summary="@string/request_updates_summary"
         />
 
+    <SwitchPreference
+        android:key="@string/trucker_switch_key"
+        android:title="@string/trucker_switch_title"
+        android:summary="@string/trucker_switch_summary"
+        android:id="@+id/trucker_switch"
+        android:defaultValue="false"/>
 </PreferenceScreen>

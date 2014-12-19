@@ -21,7 +21,7 @@
             tools:layout="@layout/activity_maps" />
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -29,6 +29,15 @@
         xmlns:tools="http://schemas.android.com/tools" >
 
 
+        <!--<Button-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:padding="20dp"-->
+            <!--android:background="@color/black"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:text="@string/request_tow"-->
+            <!--android:id="@+id/button" />-->
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
             android:id="@+id/address_progress"
@@ -37,15 +46,43 @@
             android:indeterminate="true"
             android:visibility="gone" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:visibility="gone"
-            android:background="@color/black"
-            android:textColor="@color/white"
-            android:layout_gravity="center"
-            android:text="Address location"
-            android:id="@+id/address_location" />
-    </LinearLayout>
+            android:orientation="horizontal"
+
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="45dp"
+            >
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                style="?android:attr/borderlessButtonStyle"
+                android:background="@color/accent_material_light"
+                android:textColor="@color/white"
+                android:text="@string/request_tow"
+                android:id="@+id/request_tow"
+                android:layout_marginRight="20dp" />
+            <!--
+                style="?android:attr/buttonBarButtonStyle"-->
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                style="@android:style/Widget.Material.Light.Button.Inset"
+                android:background="@color/accent_material_light"
+                android:textColor="@color/white"
+                android:text="find a client"
+                android:id="@+id/find_client" />
+
+        </LinearLayout>
+        <!--
+            android:visibility="gone"-->
+    </RelativeLayout>
+
+    <include
+        layout="@layout/result_info"
+        android:id="@+id/results_panel"/>
 </FrameLayout>

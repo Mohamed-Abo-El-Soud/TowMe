@@ -103,6 +103,18 @@ public class MapFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         setUpMapIfNeeded();
+        mRootview.findViewById(R.id.request_tow).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlacer.getATow(mCurrentLocation);
+            }
+        });
+        mRootview.findViewById(R.id.find_client).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlacer.findAClient(mCurrentLocation);
+            }
+        });
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -231,9 +243,9 @@ public class MapFragment extends Fragment implements
     @Override
     public void onLocationChanged(Location location) {
         // Report to the UI that the location was updated
-        String msg = "Updated Location: " +
-                Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
+//        String msg = "Updated Location: " +
+//                Double.toString(location.getLatitude()) + "," +
+//                Double.toString(location.getLongitude());
         mCurrentLocation = location;
         mPlacer.update(mCurrentLocation);
 //        Toast.makeText(getActivity(), "Location changed...", Toast.LENGTH_SHORT).show();

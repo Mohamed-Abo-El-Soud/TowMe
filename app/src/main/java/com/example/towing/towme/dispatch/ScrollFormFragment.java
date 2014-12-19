@@ -33,12 +33,6 @@ import java.util.List;
 public class ScrollFormFragment extends Fragment {
     private View mRootView;
     private Context mContext;
-    public String firstName;
-    public String lastName;
-    public String phoneNumber;
-    public String carModel;
-    public String carMake;
-    public String carYear;
 
     private EditText firstNameField;
     private EditText lastNameField;
@@ -53,7 +47,8 @@ public class ScrollFormFragment extends Fragment {
     private static final int CURRENT_YEAR = Calendar.getInstance().get(Calendar.YEAR);
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container
+            , @Nullable Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_scroll_form, container, false);
 
         mContext = getActivity();

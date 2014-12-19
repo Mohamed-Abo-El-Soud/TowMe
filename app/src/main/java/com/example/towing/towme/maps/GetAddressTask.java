@@ -21,7 +21,7 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
 
     protected static Context mContext;
     private static final String LOG_TAG = GetAddressTask.class.getSimpleName();
-    protected ProgressBar mActivityIndicator;
+//    protected ProgressBar mActivityIndicator;
     protected GmapInteraction mInteraction;
     protected Location mLocation;
     protected String mAddress = null;
@@ -42,7 +42,7 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
         super();
         mInteraction = interaction;
         mContext = context;
-        mActivityIndicator = activityIndicator;
+//        mActivityIndicator = activityIndicator;
         mLocation = location;
         mAddress = address;
         mListener = listener;
@@ -50,10 +50,6 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
 
     @Override
     protected void onPreExecute() {
-        // Show the activity indicator
-        if(mActivityIndicator!=null)
-            mActivityIndicator.setVisibility(View.VISIBLE);
-
         try {
             // Ensure that a Geocoder services is available
             if (Build.VERSION.SDK_INT <
@@ -146,9 +142,6 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
 
     @Override
     protected void onPostExecute(Void mVoid) {
-        // Set activity indicator visibility to "gone"
-        if(mActivityIndicator!=null)
-            mActivityIndicator.setVisibility(View.GONE);
         if(mAddress == null) return;
 //        mInteraction.addMarker("Your Location",mAddress,mLocation);
 //        mInteraction.viewLocation(mLocation);

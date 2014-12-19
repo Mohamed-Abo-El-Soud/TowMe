@@ -16,10 +16,16 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.preference.SwitchPreference;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.example.towing.towme.dispatch.DispatchActivity;
+import com.parse.ParseException;
 
 import java.util.List;
 
@@ -89,17 +95,6 @@ public class SettingsFragment extends
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState) {
-////        super.onPostCreate(savedInstanceState);
-//
-//
-//        setupSimplePreferencesScreen();
-//    }
-
     /**
      * Shows the simplified settings UI if the device configuration if the
      * device configuration dictates that a simplified, single-pane UI should be
@@ -119,7 +114,52 @@ public class SettingsFragment extends
         findPreference(getString(R.string.request_updates_key))
                 .setOnPreferenceChangeListener(this);
 
+        findPreference(getString(R.string.trucker_switch_key))
+                .setOnPreferenceChangeListener(mTowTruckSwitchListener);
+
     }
+
+    private Preference.OnPreferenceChangeListener mTowTruckSwitchListener =
+            new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(final Preference preference, Object newValue) {
+//                    Toast.makeText(getActivity(),newValue.toString(),Toast.LENGTH_LONG).show();
+                    final Boolean value = (Boolean)newValue;
+                    String position = value? "tow trucker":"regular driver";
+                    final String successText = "You are now a " + position;
+                    DispatchActivity.simpleCallback callback = new DispatchActivity.
+                            simpleCallback() {
+                        @Override
+                        public void done(Object first, Object second) {
+                            // check if the switch went through
+                            if((Boolean)first){
+                                // the switch completed successfully
+                                // update the UI to reflect the changes
+                                // TODO: update the UI to reflect the changes in the switch
+                                Toast.makeText(getActivity(),successText, Toast.LENGTH_LONG).show();
+                            } else{
+                                // something went wrong, notify the user
+                                Toast.makeText(getActivity(),"Unfortunately, the switch could " +
+                                        "not be completed"
+                                        ,Toast.LENGTH_LONG).show();
+                                // get the error and log it
+                                ParseException e = (ParseException)second;
+                                Log.e(LOG_TAG,"Error: " + e.getMessage());
+                                e.printStackTrace();
+                                SwitchPreference switchPreference = (SwitchPreference)preference;
+                                // return the switch to its previous state
+                                switchPreference.setChecked(!value);
+                            }
+                        }
+                    };
+                if(value){
+                    DispatchActivity.changeUserToTowTrucker(getActivity(),callback);
+                }else{
+                    DispatchActivity.changeUserToRegularDriver(getActivity(), callback);
+                }
+                    return true;
+                }
+            };
 
 
     public boolean onIsMultiPane() {
@@ -164,7 +204,8 @@ public class SettingsFragment extends
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener
+            = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
@@ -180,28 +221,6 @@ public class SettingsFragment extends
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
-
-            } else if (preference instanceof RingtonePreference) {
-                // For ringtone preferences, look up the correct display value
-                // using RingtoneManager.
-                if (TextUtils.isEmpty(stringValue)) {
-                    // Empty values correspond to 'silent' (no ringtone).
-                    preference.setSummary(R.string.pref_ringtone_silent);
-
-                } else {
-                    Ringtone ringtone = RingtoneManager.getRingtone(
-                            preference.getContext(), Uri.parse(stringValue));
-
-                    if (ringtone == null) {
-                        // Clear the summary if there was a lookup error.
-                        preference.setSummary(null);
-                    } else {
-                        // Set the summary to reflect the new ringtone display
-                        // name.
-                        String name = ringtone.getTitle(preference.getContext());
-                        preference.setSummary(name);
-                    }
-                }
 
             } else {
                 // For all other preferences, set the summary to the value's
