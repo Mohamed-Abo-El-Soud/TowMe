@@ -6,6 +6,7 @@
     <color name="accent">#ff797805</color>
     <color name="black">#ff5d5d5d</color>
     <color name="white">#ffffffff</color>
+    <color name="almost_white">#fff3f3f3</color>
     <color name="grey_light">#FFDADADA</color>
     <color name="green">#ff20a13f</color>
     <color name="red">#ffa1232b</color>

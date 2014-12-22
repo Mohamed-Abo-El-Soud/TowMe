@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/trucker_panel"
+    android:orientation="horizontal"
+    android:background="@color/white"
+    android:layout_gravity="bottom"
+    android:visibility="gone"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="@string/cancel"
+        android:background="@color/red"
+        android:textColor="@color/white"
+        android:padding="0dp"
+        android:layout_margin="0dp"
+        android:id="@+id/reject_button"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/almost_white"
+        android:layout_weight="3">
+        <TextView
+            android:background="@color/accent_material_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TOW TRUCK REQUEST"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-light"
+            android:padding="10dp" />
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:fontFamily="sans-serif-condensed"-->
+            <!--android:textColor="@color/accent_material_light"-->
+            <!--android:id="@+id/first_name"-->
+            <!--android:text="Mohamed"-->
+            <!--android:textSize="15sp"-->
+            <!--android:layout_marginStart="10dp"-->
+            <!--android:layout_marginTop="10dp"-->
+            <!--android:textAlignment="textStart" />-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:fontFamily="sans-serif-condensed"-->
+            <!--android:textColor="@color/accent_material_light"-->
+            <!--android:id="@+id/last_name"-->
+            <!--android:text="Abo El Soud"-->
+            <!--android:layout_marginStart="10dp"-->
+            <!--android:layout_marginBottom="5dp"/>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:paddingTop="5dp">
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="2013"-->
+                <!--android:id="@+id/car_year"-->
+                <!--android:fontFamily="sans-serif-light"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:textSize="12sp"-->
+                <!--android:paddingEnd="5dp"/>-->
+            <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="vertical">-->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="Mohamed"
+                android:textAllCaps="true"
+                android:textSize="16sp"
+                android:id="@+id/first_name"/>
+            <!--
+                    android:padding="5dp" -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:textSize="16sp"
+                android:text=" "/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:textAllCaps="true"
+                android:textSize="16sp"
+                android:id="@+id/last_name"
+                android:text="Abo El Soud" />
+            <!--
+                    android:padding="5dp" -->
+
+
+            <!--</LinearLayout>-->
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!--
+            android:text="@string/accept"-->
+</LinearLayout>

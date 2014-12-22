@@ -115,6 +115,7 @@ public class MapFragment extends Fragment implements
                 mPlacer.findAClient(mCurrentLocation);
             }
         });
+        mPlacer.onViewCreated();
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -227,11 +228,11 @@ public class MapFragment extends Fragment implements
             Fragment mapFragment = getChildFragmentManager().findFragmentById(R.id.map_fragment);
             if (mapFragment == null) return;
             mMap = ((SupportMapFragment)mapFragment).getMap();
-            mPlacer = new Placer(mMap,getActivity(),mRootview);
-            MapsActivity activity = (MapsActivity)getActivity();
-            mPlacer.setDialogListener(activity);
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
+                mPlacer = new Placer(mMap,getActivity(),mRootview);
+                MapsActivity activity = (MapsActivity)getActivity();
+                mPlacer.setDialogListener(activity);
 //                setUpMap();
 //                Toast.makeText(this, "could not find map", Toast.LENGTH_LONG);
             }
@@ -242,6 +243,10 @@ public class MapFragment extends Fragment implements
 
     @Override
     public void onLocationChanged(Location location) {
+        onLocChanged(location);
+    }
+
+    public void onLocChanged(Location location){
         // Report to the UI that the location was updated
 //        String msg = "Updated Location: " +
 //                Double.toString(location.getLatitude()) + "," +
@@ -249,7 +254,7 @@ public class MapFragment extends Fragment implements
         mCurrentLocation = location;
         mPlacer.update(mCurrentLocation);
 //        Toast.makeText(getActivity(), "Location changed...", Toast.LENGTH_SHORT).show();
-    }
+}
 
     // Define a DialogFragment that displays the error dialog
     public static class ErrorDialogFragment extends DialogFragment {
@@ -304,7 +309,13 @@ public class MapFragment extends Fragment implements
         if (mUpdatesRequested) {
             mLocationClient.requestLocationUpdates(mLocationRequest,this);
         }
+
+        Location lastLocation = mLocationClient.getLastLocation();
+        if(lastLocation!=null){
+            onLocChanged(lastLocation);
+        }
     }
+
 
     @Override
     public void onConnectionSuspended(int i) {

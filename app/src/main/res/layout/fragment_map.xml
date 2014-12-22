@@ -85,4 +85,10 @@
     <include
         layout="@layout/result_info"
         android:id="@+id/results_panel"/>
+    <include
+        layout="@layout/trucker_info"
+        android:id="@+id/trucker_panel"/>
+    <include
+        layout="@layout/loading_info"
+        android:id="@+id/loading_panel"/>
 </FrameLayout>

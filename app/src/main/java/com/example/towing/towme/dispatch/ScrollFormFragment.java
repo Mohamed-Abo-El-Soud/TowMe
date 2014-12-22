@@ -1,5 +1,6 @@
 package com.example.towing.towme.dispatch;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,9 +20,11 @@ import android.widget.Toast;
 import com.example.towing.towme.MapsActivity;
 import com.example.towing.towme.R;
 import com.example.towing.towme.Utilites;
+import com.example.towing.towme.dispatch.DispatchActivity.simpleCallback;
+import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -86,8 +89,12 @@ public class ScrollFormFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(validateInput()) {
-                    sendInfo();
-                    startActivity(new Intent(getActivity(), MapsActivity.class));
+                    sendInfo(new simpleCallback() {
+                        @Override
+                        public void done(Object first, Object second) {
+                            startActivity(new Intent(getActivity(), MapsActivity.class));
+                        }
+                    });
                 }
             }
         });
@@ -114,7 +121,7 @@ public class ScrollFormFragment extends Fragment {
             phoneNumberField.setText(phoneNumber);
     }
 
-    private void sendInfo(){
+    private void sendInfo(final simpleCallback callback){
         ParseUser user = Utilites.getUser();
         String email = emailField.getText().toString();
         String firstName = firstNameField.getText().toString();
@@ -130,7 +137,19 @@ public class ScrollFormFragment extends Fragment {
         user.put(DispatchActivity.CAR_YEAR,carYear);
         user.put(DispatchActivity.CAR_MAKE,carMake);
         user.put(DispatchActivity.CAR_MODEL,carModel);
-        user.saveInBackground();
+        user.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e==null){
+                    if(callback!=null)
+                        callback.done(null,null);
+                } else {
+                    Toast.makeText(mContext, "make sure you have an internet " +
+                            "connection to use this app"
+                            , Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     private void fillInCarYears(){

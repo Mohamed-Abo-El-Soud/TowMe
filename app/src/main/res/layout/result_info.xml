@@ -1,36 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/accent_material_light"
     android:id="@+id/results_panel"
     android:orientation="horizontal"
+    android:background="@color/white"
     android:layout_gravity="bottom"
-    android:visibility="visible"
+    android:visibility="gone"
     android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <Button
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:text="reject"
-        android:background="@color/red"
-        android:textColor="@color/white"
-        android:layout_marginBottom="-0dp"
-        android:padding="10dp"
-        android:id="@+id/reject_button"
-        android:layout_weight="1" />
-
-
+    <!--<Button-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="reject"-->
+        <!--android:background="@color/red"-->
+        <!--android:textColor="@color/white"-->
+        <!--android:padding="0dp"-->
+        <!--android:layout_margin="0dp"-->
+        <!--android:id="@+id/reject_button"-->
+        <!--android:layout_weight="1" />-->
 
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@color/almost_white"
+        android:layout_weight="1">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:text="accept"
+            android:background="@color/green"
+            android:textColor="@color/white"
+            android:id="@+id/accept_button"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:text="reject"
+            android:background="@color/red"
+            android:textColor="@color/white"
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:id="@+id/reject_button"
+            android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/almost_white"
         android:layout_weight="3">
         <TextView
-            android:layout_width="wrap_content"
+            android:background="@color/accent_material_light"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="TOW REQUEST"
             android:textColor="@color/white"
@@ -41,66 +68,89 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-condensed"
-            android:textColor="@color/grey_light"
+            android:textColor="@color/accent_material_light"
+            android:id="@+id/first_name"
             android:text="Mohamed"
-            android:padding="5dp"
-            android:layout_marginStart="10dp"/>
+            android:textSize="15sp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:textAlignment="textStart" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-condensed"
-            android:textColor="@color/grey_light"
+            android:textColor="@color/accent_material_light"
+            android:id="@+id/last_name"
             android:text="Abo El Soud"
-            android:padding="5dp"
             android:layout_marginStart="10dp"
             android:layout_marginBottom="5dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:background="@color/white"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:paddingTop="5dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2013"
+                android:id="@+id/car_year"
                 android:fontFamily="sans-serif-light"
                 android:layout_gravity="center"
-                android:padding="10dp" />
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:textSize="12sp"
+                android:paddingEnd="5dp"/>
+            <!--<LinearLayout-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:orientation="vertical">-->
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
                     android:text="Honda"
-                    android:padding="5dp" />
+                    android:textAllCaps="true"
+                    android:textSize="18sp"
+                    android:id="@+id/car_make"/>
+            <!--
+                    android:padding="5dp" -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:textSize="18sp"
+                android:text=" "/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="Civic"
-                    android:padding="5dp" />
-                </LinearLayout>
+                    android:textAllCaps="true"
+                    android:textSize="18sp"
+                    android:id="@+id/car_model"
+                    android:text="Civic" />
+            <!--
+                    android:padding="5dp" -->
+
+
+                <!--</LinearLayout>-->
             </LinearLayout>
 
         </LinearLayout>
-
-    <Button
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:padding="10dp"
-        android:text="accept"
-        android:background="@color/green"
-        android:textColor="@color/white"
-        android:id="@+id/accept_button"
-        android:focusable="true"
-        android:layout_weight="1.11" />
+    <!--<Button-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:padding="0dp"-->
+        <!--android:layout_margin="0dp"-->
+        <!--android:text="accept"-->
+        <!--android:background="@color/green"-->
+        <!--android:textColor="@color/white"-->
+        <!--android:id="@+id/accept_button"-->
+        <!--android:layout_weight="1.11" />-->
 <!--
         android:text="@string/accept"-->
 </LinearLayout>
