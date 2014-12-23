@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +49,18 @@ public class ScrollFormFragment extends Fragment {
 
     private static final int STARTING_YEAR = 1970;
     private static final int CURRENT_YEAR = Calendar.getInstance().get(Calendar.YEAR);
+
+    interface LoadingScreen{
+        void showLoading();
+        void hideLoading();
+    }
+
+    private LoadingScreen mLoading;
+
+    public void setLoading(LoadingScreen loadingScreen){
+        mLoading = loadingScreen;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container
@@ -88,11 +101,20 @@ public class ScrollFormFragment extends Fragment {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mLoading.showLoading();
                 if(validateInput()) {
                     sendInfo(new simpleCallback() {
                         @Override
                         public void done(Object first, Object second) {
-                            startActivity(new Intent(getActivity(), MapsActivity.class));
+                            if((Boolean)first) {
+                                mLoading.hideLoading();
+                                startActivity(new Intent(getActivity(), MapsActivity.class));
+                            } else {
+                                mLoading.hideLoading();
+                                Toast.makeText(mContext, "make sure you have an internet " +
+                                        "connection to use this app"
+                                        , Toast.LENGTH_LONG).show();
+                            }
                         }
                     });
                 }
@@ -142,11 +164,10 @@ public class ScrollFormFragment extends Fragment {
             public void done(ParseException e) {
                 if(e==null){
                     if(callback!=null)
-                        callback.done(null,null);
+                        callback.done(true,null);
                 } else {
-                    Toast.makeText(mContext, "make sure you have an internet " +
-                            "connection to use this app"
-                            , Toast.LENGTH_LONG).show();
+                    if(callback!=null)
+                        callback.done(false,null);
                 }
             }
         });

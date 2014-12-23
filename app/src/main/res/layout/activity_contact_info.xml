@@ -25,11 +25,21 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="18sp"
         android:layout_margin="0dp" />
-    <fragment
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:name="com.example.towing.towme.dispatch.ScrollFormFragment"
-        tools:layout="@layout/fragment_scroll_form"
-        android:layout_margin="35dp"
-        />
+        android:layout_height="wrap_content">
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="com.example.towing.towme.dispatch.ScrollFormFragment"
+            tools:layout="@layout/fragment_scroll_form"
+            android:layout_margin="35dp"
+            />
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:id="@+id/dispatch_loading"/>
+        </FrameLayout>
 </LinearLayout>
