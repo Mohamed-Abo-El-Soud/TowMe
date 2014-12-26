@@ -156,6 +156,13 @@ public class DispatchActivity extends FragmentActivity
                         }
                     }
                 });
+        final Activity that = this;
+        findViewById(R.id.btn_continue).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(that,MapsActivity.class));
+            }
+        });
     }
 
     @Override
@@ -207,50 +214,6 @@ public class DispatchActivity extends FragmentActivity
         });
     }
 
-//    private void getFBInfo(){
-//        Request request = Request.newMeRequest(ParseFacebookUtils.getSession()
-//                ,new Request.GraphUserCallback() {
-//            @Override
-//            public void onCompleted(GraphUser user, Response response) {
-//                if (user != null) {
-//                    ParseUser activeUser = Utilites.getUser();
-//                    activeUser.put(IS_ANONYMOUS,false);
-//                    activeUser.put(FIRST_NAME,user.getFirstName());
-//                    String endName = "";
-//                    if(user.getMiddleName() !=null)
-//                        endName += user.getMiddleName();
-//                    if(user.getLastName() !=null) {
-//                        // add a space between the middle and last name
-//                        if (user.getMiddleName() != null)
-//                            endName += " ";
-//                        endName += user.getLastName();
-//                    }
-//                    if(endName.length()>1)
-//                        activeUser.put(LAST_NAME,endName);
-//                    if(user.getProperty(ParseFacebookUtils.Permissions.User.EMAIL)!=null){
-//                        activeUser.put(E_MAIL,user.getProperty(ParseFacebookUtils
-//                                .Permissions.User.EMAIL));
-//                    }
-//                    activeUser.saveInBackground(new SaveCallback() {
-//                        @Override
-//                        public void done(ParseException e) {
-//                            if(e!=null){
-//                                Log.e(LOG_TAG,"Error: " + e);
-//                                e.printStackTrace();
-//                            }
-//                            else {
-//                                Log.d(LOG_TAG,"info saved successfully!");
-//                            }
-//                        }
-//                    });
-//                } else if (response.getError() != null) {
-//                    // handle error
-//                }
-//            }
-//        });
-//        request.executeAsync();
-//    }
-
     private void getFBInfo(final simpleCallback callback){
         Request request = Request.newMeRequest(ParseFacebookUtils.getSession()
                 ,new Request.GraphUserCallback() {
@@ -276,18 +239,6 @@ public class DispatchActivity extends FragmentActivity
                     }
                     if(callback!=null)
                         callback.done(result,null);
-//                    activeUser.saveInBackground(new SaveCallback() {
-//                        @Override
-//                        public void done(ParseException e) {
-//                            if(e!=null){
-//                                Log.e(LOG_TAG,"Error: " + e);
-//                                e.printStackTrace();
-//                            }
-//                            else {
-//                                Log.d(LOG_TAG,"info saved successfully!");
-//                            }
-//                        }
-//                    });
                 } else if (response.getError() != null) {
                     // handle error
                     if(callback!=null)
@@ -358,7 +309,7 @@ public class DispatchActivity extends FragmentActivity
                         // skip the setup and go to the actual app
                         Utilites.setUser(currentUser);
                         getEntries();
-                        startActivity(new Intent(that,MapsActivity.class));
+                        findViewById(R.id.btn_continue).setVisibility(View.VISIBLE);
                         if (findViewById(R.id.dispatch_starting).getVisibility() != View.GONE)
                             findViewById(R.id.dispatch_starting).setVisibility(View.GONE);
                     } else {

@@ -5,54 +5,27 @@
     android:layout_height="fill_parent"
     android:gravity="center">
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Account Information"
-        android:id="@+id/textView"
-        android:layout_margin="10dp" />
-    <LinearLayout
+        android:text="start location"
+        android:id="@+id/start_location_btn"
+        />
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <LinearLayout
+        android:text="stop location"
+        android:id="@+id/stop_location_btn"/>
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Username: "
-            android:layout_margin="10dp" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Password: "
-            android:layout_margin="10dp" />
-    </LinearLayout>
-
-    <LinearLayout
+        android:text="start service"
+        android:id="@+id/start_service_btn"
+        />
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SomeUsername"
-            android:id="@+id/user_name_field"
-            android:layout_margin="10dp" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="somePasword"
-            android:id="@+id/pass_word_field"
-            android:layout_margin="10dp" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/sign_in_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:text="stop service"
+        android:id="@+id/stop_service_btn"
+        />
 </LinearLayout>

@@ -1,11 +1,17 @@
 package com.example.towing.towme.maps;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.LayoutTransition;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,13 +23,16 @@ import android.widget.Toast;
 import com.example.towing.towme.LocationPost;
 import com.example.towing.towme.R;
 import com.example.towing.towme.Utilites;
+import com.example.towing.towme.directions.GoogleDirection;
 import com.example.towing.towme.dispatch.DispatchActivity;
 import com.example.towing.towme.dispatch.DispatchActivity.simpleCallback;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -35,6 +44,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -241,6 +251,7 @@ public class Placer {
 //                    interaction.moveView(0, 200);
                 }
             });
+            createRoute(mLocation,location);
         }
     };
 
@@ -405,6 +416,8 @@ public class Placer {
         if(inflater!=null)inflater.hidePanel();
         //  hide the marker shown
         destinationMarker.setVisible(false);
+        // remove the polylines
+        interaction.removeRoute();
         // return back to the old view
         if(mLocation!=null)
             interaction.viewLocation(mLocation);
@@ -422,6 +435,28 @@ public class Placer {
                     connectivityIssues.done(second,null);
             }
         });
+        //  hide the marker shown
+        destinationMarker.setVisible(false);
+        // return back to the old view
+        if(mLocation!=null)
+            interaction.viewLocation(mLocation);
+    }
+
+    public void onOrientationChanged(){
+        if(mClientInflater.isVisible()){
+            mClientInflater.displayPanel();
+        } else
+            mClientInflater.hidePanel();
+
+        if(mLoadingInflater.isVisible()){
+            mLoadingInflater.displayPanel();
+        } else
+            mLoadingInflater.hidePanel();
+
+        if(mTowInflater.isVisible()){
+            mTowInflater.displayPanel();
+        } else
+            mTowInflater.hidePanel();
     }
 
     /**
@@ -431,26 +466,42 @@ public class Placer {
         final ProgressBar bar = (ProgressBar)mRootView.findViewById(R.id.address_progress);
         if(bar.getVisibility()!=View.VISIBLE)
             bar.setVisibility(View.VISIBLE);
-        new GetAddressTask(mContext
-                ,interaction
-                ,(ProgressBar)mRootView.findViewById(R.id.address_progress)
-                ,location
-                ,new GetAddressTask.OnTaskCompleted() {
+        simpleCallback onSuccess = new simpleCallback() {
             @Override
-            public void onTaskCompleted(Location location, String address) {
+            public void done(Object first, Object second) {
+                Location location = (Location)first;
+                String address = (String)second;
                 if(location==null) return;
                 if(bar.getVisibility()!=View.GONE)
                     bar.setVisibility(View.GONE);
                 if(selfMarker!=null){
-                    interaction.moveMarker(selfMarker,location);
+                    GmapInteraction.moveMarker(selfMarker, location);
                 }
                 else{
                     selfMarker = interaction.addVisual(mContext.getString(
-                                    R.string.your_location_title),address,location);
+                            R.string.your_location_title),address,location);
                     interaction.viewLocation(location);
                 }
             }
-        }).execute();
+        };
+        simpleCallback onFail = new simpleCallback() {
+            @Override
+            public void done(Object first, Object second) {
+                Location location = (Location)first;
+                if(location==null) return;
+                if(bar.getVisibility()!=View.GONE)
+                    bar.setVisibility(View.GONE);
+                if(selfMarker!=null){
+                    GmapInteraction.moveMarker(selfMarker, location);
+                }
+                else{
+                    selfMarker = interaction.addVisual(mContext.getString(
+                            R.string.your_location_title), null, location);
+                    interaction.viewLocation(location);
+                }
+            }
+        };
+        new GetAddressTask(mContext, location, onSuccess, onFail).execute();
     }
 
     /**
@@ -638,586 +689,13 @@ public class Placer {
 
     }
 
-
-}
-
-
-/**
- * Requests the closest Truck Driver to the current location and tracks
- * the progress of the request.
- * */
-class LocationRequest{
-    private final static String LOG_TAG = LocationRequest.class.getSimpleName();
-    private static final int MAX_POST_SEARCH_DISTANCE = 100;
-    public final static String LOCATION_REQUEST_CLASS_NAME = "LocationRequest";
-    public final static String USER_COLUMN = "user";
-    public final static String LOCATION_COLUMN = "location";
-    public final static String TRUCKER_COLUMN = "Trucker";
-    private static boolean requestCreated = false;
-    private static ParseObject mLocationRequest;
-    private static ParseObject mActiveTrucker;
-
-    // keys
-    public final static String ON_CONNECTIVITY_KEY = "connectivity";
-    public final static String ON_SUCCESS_KEY = "success";
-    public final static String ON_NO_TRUCKERS = "noTruckers";
-
-    public static void sendRequest(final ParseUser user, final ParseGeoPoint point
-            , final simpleCallback onSuccess
-            , final simpleCallback onConnectivityIssues, final simpleCallback onNoTruckers){
-        createRequest(user,point,new simpleCallback() {
-            @Override
-            public void done(Object first, Object second) {
-                if((Boolean)first){
-                    // object creation went through
-
-
-                    initializeRequest(point,onSuccess,onConnectivityIssues,onNoTruckers);
-
-//
-//                    getClosestTruckDriver(point,new simpleCallback() {
-//                        @Override
-//                        public void done(Object first, Object second) {
-//                            if((Boolean)first){
-//                                // closest truck has been found
-//                                ParseObject towTrucker = (ParseObject)second;
-//                                linkRequest(towTrucker,mLocationRequest, new simpleCallback() {
-//                                    @Override
-//                                    public void done(Object first, Object second) {
-//                                        if((Boolean)first) {
-//                                            // a tow-truck has been requested
-//                                            if (onSuccess != null)
-//                                                onSuccess.done(null,null);
-//                                        } else {
-//                                            if (onConnectivityIssues != null)
-//                                                onConnectivityIssues.done(second,null);
-//                                        }
-//                                    }
-//                                });
-//                            } else {
-//                                // no trucks are nearby
-//                                if (onNoTruckers != null)
-//                                    onNoTruckers.done(null,null);
-//                                // remove the request object if there are no tow trucks
-//                                removeRequest(new simpleCallback() {
-//                                    @Override
-//                                    public void done(Object first, Object second) {
-//                                        if(!(Boolean)first) {
-//                                            // if the removal request didn't go through
-//                                            if (onConnectivityIssues != null)
-//                                                onConnectivityIssues.done(second, null);
-//                                        }
-//                                    }
-//                                });
-//                            }
-//                        }
-//                    });
-                } else{
-                    // connectivity issues
-                    if (onConnectivityIssues != null)
-                        onConnectivityIssues.done(second, null);
-                }
-            }
-        });
-    }
-
-    private static void initializeRequest(final ParseGeoPoint point
-            , final simpleCallback onSuccess
-            , final simpleCallback onConnectivityIssues, final simpleCallback onNoTruckers){
-        getClosestTruckDriver(point,new simpleCallback() {
-            @Override
-            public void done(Object first, Object second) {
-                if((Boolean)first){
-                    // closest truck has been found
-                    ParseObject towTrucker = (ParseObject)second;
-                    linkRequest(towTrucker,mLocationRequest, new simpleCallback() {
-                        @Override
-                        public void done(Object first, Object second) {
-                            if((Boolean)first) {
-                                // a tow-truck has been requested
-                                if (onSuccess != null)
-                                    onSuccess.done(null,null);
-                            } else {
-                                if (onConnectivityIssues != null)
-                                    onConnectivityIssues.done(second,null);
-                            }
-                        }
-                    });
-                } else {
-                    // no trucks are nearby
-                    if (onNoTruckers != null)
-                        onNoTruckers.done(null,null);
-                    // remove the request object if there are no tow trucks
-                    removeRequest(new simpleCallback() {
-                        @Override
-                        public void done(Object first, Object second) {
-                            if(!(Boolean)first) {
-                                // if the removal request didn't go through
-                                if (onConnectivityIssues != null)
-                                    onConnectivityIssues.done(second, null);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    private static void linkRequest(ParseObject truckPost, ParseObject request
-            , final simpleCallback callback){
-
-        // make sure the right objects are received with the right class names
-        if(!truckPost.getClassName().equals(FindATowPost.ACTIVE_TRUCKER_CLASS_NAME)
-                || !request.getClassName().equals(LOCATION_REQUEST_CLASS_NAME)){
-            Log.e(LOG_TAG,"wrong class names");
-            throw new RuntimeException("incorrect class names are received");
-        }
-        // set the state to active
-        truckPost.put(FindATowPost.STATE_COLUMN, FindATowPost.STATE_ACTIVE);
-        // link the truck post to the request
-        truckPost.put(FindATowPost.REQUESTS_COLUMN,request);
-        // save the truck post
-        truckPost.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(callback!=null)
-                    callback.done(e==null,e);
-            }
-        });
-    }
-
-    private static void createRequest(ParseUser user, ParseGeoPoint point
-            , final simpleCallback callback){
-        // check if a RequestLocation has been created
-        if(requestCreated) return;
-//        {
-//            if(callback!=null)
-//                callback.done(true,null);
-//            return;
-//        }
-        final ParseObject request = new ParseObject(LOCATION_REQUEST_CLASS_NAME);
-        // fill in the data for the columns of the object
-        request.put(USER_COLUMN,user);
-        request.put(LOCATION_COLUMN, point);
-        // there is also another column, which is left empty but will be populated by the trucker
-        request.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e != null) {
-                    if(callback!=null)
-                        callback.done(false,e);
-                } else {
-                    requestCreated = true;
-                    mLocationRequest = request;
-                    if(callback!=null)
-                        callback.done(true,null);
-                }
-            }
-        });
-    }
-
-    /**
-     * retrieves the closest truck to the given location. There is an option to trigger a callback
-     * in order to perform an action once the function is completed.
-     * */
-    private static void getClosestTruckDriver
-            (ParseGeoPoint point, final simpleCallback callback){
-        // check if a RequestLocation has been created
-        if(mActiveTrucker!=null) return;
-//        {
-//            if(callback!=null)
-//                callback.done(true,mActiveTrucker);
-//            return;
-//        }
-        ParseQuery<ParseObject> truckerQuery = ParseQuery.getQuery(
-                FindATowPost.ACTIVE_TRUCKER_CLASS_NAME);
-        truckerQuery.whereWithinKilometers(FindATowPost.LOCATION_COLUMN
-                , point, MAX_POST_SEARCH_DISTANCE);
-        truckerQuery.whereEqualTo(FindATowPost.STATE_COLUMN,FindATowPost.STATE_IDLE);
-        truckerQuery.getFirstInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject towTrucker, ParseException e) {
-                if(towTrucker !=null){
-                    mActiveTrucker = towTrucker;
-                    if(callback!=null)
-                        callback.done(true,towTrucker);
-                } else if(e!=null){
-                    if(callback!=null)
-                        callback.done(false,e);
-                }
-            }
-        });
-    }
-
-    public static void trackRequest(final simpleCallback onSuccess
-            , final simpleCallback onConnectivityIssues, final simpleCallback onCancel){
-        // check if a RequestLocation has been created
-        if(!requestCreated) return;
-        // check if tow trucker has cancelled the request
-        if(mActiveTrucker!=null){
-             checkOnTrucker(onConnectivityIssues,onCancel);
-        }
-        mLocationRequest.fetchInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject fetchedRequest, ParseException e) {
-                if(fetchedRequest!=null) {
-                    ParseObject truckerPost = (ParseObject) fetchedRequest.get(TRUCKER_COLUMN);
-                    if (truckerPost != null)
-                        receivePost(truckerPost, onConnectivityIssues, onSuccess);
-                } else {
-                    if(onConnectivityIssues!=null)
-                        onConnectivityIssues.done(e,null);
-                }
-            }
-        });
-    }
-
-    private static void checkOnTrucker(final simpleCallback onConnectivityIssues,
-                                       final simpleCallback onCancel){
-        mActiveTrucker.fetchInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject trucker, ParseException e) {
-                if(trucker!=null){
-                    String state = (String)trucker.get(FindATowPost.STATE_COLUMN);
-                    if(state.equals(FindATowPost.STATE_IDLE)){
-                        // the trucker has cancelled the request
-                        mActiveTrucker = null;
-                        // trigger the cancellation callback
-                        onCancel.done(retryCallback,null);
-                    }
-                } else {
-                    // the trucker post has been deleted
-                    mActiveTrucker = null;
-                    onCancel.done(retryCallback,null);
-                }
-            }
-        });
-    }
-
-    private static simpleCallback retryCallback = new simpleCallback() {
-        @Override
-        public void done(Object first, Object second) {
-            ParseGeoPoint point = (ParseGeoPoint)first;
-            HashMap<String,simpleCallback> callbacks = (HashMap)second;
-            simpleCallback onConnectivityIssues = callbacks.get(ON_CONNECTIVITY_KEY);
-            simpleCallback onSuccess = callbacks.get(ON_SUCCESS_KEY);
-            simpleCallback onNoTruckers = callbacks.get(ON_NO_TRUCKERS);
-
-            initializeRequest(point, onSuccess, onConnectivityIssues, onNoTruckers);
-        }
-    };
-
-    private static void receivePost(ParseObject truckerPost
-            , final simpleCallback onConnectivityIssues
-            , final simpleCallback onSuccess){
-        truckerPost.fetchInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject trucker, ParseException e) {
-                if(e!=null) {
-                    if(onConnectivityIssues!=null)
-                        onConnectivityIssues.done(e,null);
-                } else {
-                    final ParseGeoPoint truckerLocation = trucker.getParseGeoPoint(
-                            FindATowPost.LOCATION_COLUMN);
-                    ParseUser truckerUser = trucker.getParseUser(
-                            FindATowPost.USER_COLUMN);
-                    truckerUser.fetchInBackground(new GetCallback<ParseUser>() {
-                        @Override
-                        public void done(ParseUser user, ParseException e) {
-                            if(e!=null){
-                                if(onConnectivityIssues!=null)
-                                    onConnectivityIssues.done(e,null);
-                            } else {
-                                String firstName = (String) user.get(DispatchActivity.FIRST_NAME);
-                                String lastName = (String) user.get(DispatchActivity.LAST_NAME);
-                                Bundle bundle = new Bundle();
-                                bundle.putParcelable(LOCATION_COLUMN
-                                        ,GmapInteraction.getLocation(truckerLocation));
-                                bundle.putString(DispatchActivity.FIRST_NAME, firstName);
-                                bundle.putString(DispatchActivity.LAST_NAME,lastName);
-                                if(onSuccess!=null)
-                                    onSuccess.done(bundle,null);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    public static void removeRequest(final simpleCallback callback){
-        // check if a RequestLocation has been created
-        if(!requestCreated) return;
-        if(mActiveTrucker!=null){
-            mActiveTrucker.put(FindATowPost.STATE_COLUMN, FindATowPost.STATE_IDLE);
-            mActiveTrucker.put(FindATowPost.REQUESTS_COLUMN, JSONObject.NULL);
-            mActiveTrucker.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if(e==null) {
-                        mActiveTrucker = null;
-                        destroyRequest(callback);
-                    } else {
-                        callback.done(false,e);
-                    }
-                }
-            });
-        } else {
-            destroyRequest(callback);
-        }
-    }
-
-    private static void destroyRequest(final simpleCallback callback){
-        mLocationRequest.deleteEventually(new DeleteCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (callback != null) {
-                    callback.done(e == null, e);
-                }
-            }
-        });
-        mLocationRequest = null;
-        requestCreated = false;
+    public void createRoute(Location start, Location end){
+        if(mContext==null)return;
+        interaction.buildRoute(start,end,mContext,null);
     }
 
 }
 
-/**
- * TRUCKER - RELATED CLASS
- *  Submits a post indicating the Tow-Trucker is active and ready to receive requests for tows.
- *  the post is regularly updated with the most recent location of the user.
- * */
-class FindATowPost{
-    private final static String LOG_TAG = FindATowPost.class.getSimpleName();
-    public final static String ACTIVE_TRUCKER_CLASS_NAME = "ActiveTruckers";
-    public final static String USER_COLUMN = "trucker";
-    public final static String LOCATION_COLUMN = "location";
-    public final static String REQUESTS_COLUMN = "requests";
-    public final static String STATE_COLUMN = "state";
-    public final static String STATE_IDLE = "IDLE";
-    public final static String STATE_ACTIVE = "ACTIVE";
-    private static boolean postCreated = false;
-    private static boolean requestReceived = false;
-    private static ParseObject mTruckerPost;
-    private static ParseGeoPoint mDestination;
-
-    public static void createPost(ParseUser user,ParseGeoPoint point
-            ,final simpleCallback onConnectivityIssues
-            ,final simpleCallback onSuccess){
-        // check if an ActiveTruckers post has been created
-        if(postCreated) return;
-        final ParseObject post = new ParseObject(ACTIVE_TRUCKER_CLASS_NAME);
-        post.put(USER_COLUMN, user);
-        post.put(LOCATION_COLUMN, point);
-        post.put(STATE_COLUMN, STATE_IDLE);
-        post.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e!=null) {
-                    if (onConnectivityIssues != null)
-                        onConnectivityIssues.done(e, null);
-                }else {
-                    postCreated = true;
-                    mTruckerPost = post;
-                    if (onSuccess != null)
-                        onSuccess.done(null,null);
-                }
-            }
-        });
-
-    }
-    public static void updatePost(final ParseGeoPoint point
-            , final simpleCallback onSuccess, final simpleCallback onConnectivityIssues
-            , final simpleCallback onCancel){
-        // check if an ActiveTruckers post has been created
-        if(!postCreated) return;
-        // get the post from the network
-        mTruckerPost.fetchInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject parseObject, ParseException e) {
-                // check if an ActiveTruckers post has been created
-                if(!postCreated) return;
-                if(e!=null) {
-                    if (onConnectivityIssues != null)
-                        onConnectivityIssues.done(e, null);
-                }else {
-                    // the post has been found, it should then be updated...
-                    parseObject.put(LOCATION_COLUMN, point);
-                    parseObject.saveInBackground();
-                    // track any updates to the post
-//                    trackPost(parseObject, context, callback);
-                    trackPost(parseObject,onConnectivityIssues,onSuccess,onCancel);
-                }
-            }
-        });
-    }
-
-    private static void trackPost(@NonNull ParseObject post
-            , final simpleCallback onConnectivityIssues
-            , final simpleCallback onSuccess
-            , final simpleCallback onCancel){
-        post.fetchInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject postObject, ParseException e) {
-                // check if an ActiveTruckers post has been created
-                if(!postCreated) return;
-                if (postObject != null) {
-                    // divert to checkRequest if needed
-                    if(requestReceived){
-                        checkRequest(postObject,onCancel,onConnectivityIssues,onSuccess);
-                        return;
-                    }
-                    String state = (String) postObject.get(STATE_COLUMN);
-                    // check if a client has requested services from this user
-                    if (state.equals(STATE_ACTIVE)) {
-                        ParseObject request = (ParseObject) postObject.get(REQUESTS_COLUMN);
-                        // it is implied that the request object exists
-                        // trigger a response if a request has been attached to the post
-                        receiveRequest(request, onConnectivityIssues, onSuccess);
-                    }
-                }
-            }
-        });
-    }
-
-    private static void checkRequest(ParseObject postObject, final simpleCallback onCancel
-            ,final simpleCallback onConnectivityIssues, final simpleCallback onSuccess){
-        // check if the request still stands
-        String state = (String) postObject.get(STATE_COLUMN);
-        // if the state has been changed, the request has been canceled
-        if (state.equals(STATE_IDLE)){
-            requestReceived = false;
-            onCancel.done(null,null);
-        } else if(state.equals(STATE_ACTIVE)) {
-            ParseObject request = (ParseObject) postObject.get(REQUESTS_COLUMN);
-            // it is implied that the request object exists
-            // trigger a response if a request has been attached to the post
-            updateRequest(request,onConnectivityIssues,onSuccess);
-        }
-    }
-
-    public static void removePost(final simpleCallback onConnectivityIssues){
-        // check if an ActiveTruckers post has been created
-        if(!postCreated) return;
-        mTruckerPost.deleteEventually(new DeleteCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e != null) {
-                    // the post was not deleted, notify the user of connectivity issues
-                    if(onConnectivityIssues!=null)
-                        onConnectivityIssues.done(e,null);
-                }
-            }
-        });
-        postCreated = false;
-        mTruckerPost = null;
-    }
-
-    private static void updateRequest(@NonNull ParseObject request
-            , final simpleCallback onConnectivityIssues, final simpleCallback onSuccess){
-        request.fetchInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject fetchedRequest, ParseException e) {
-                if(fetchedRequest!=null) {
-                    requestReceived = true;
-                    // set a private field as the destination location so it could be accessed
-                    mDestination = (ParseGeoPoint) fetchedRequest.get(
-                            LocationRequest.LOCATION_COLUMN);
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelable(LOCATION_COLUMN, GmapInteraction.
-                            getLocation(mDestination));
-                    if (onSuccess != null)
-                        onSuccess.done(bundle,null);
-                } else {
-                    if (onConnectivityIssues != null)
-                        onConnectivityIssues.done(e,null);
-                }
-            }
-        });
-    }
-    private static void receiveRequest(@NonNull ParseObject request
-            , final simpleCallback onConnectivityIssues
-            , final simpleCallback onSuccess){
-        request.fetchInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject fetchedRequest, ParseException e) {
-                if(fetchedRequest!=null) {
-                    requestReceived = true;
-                    // set a private field as the destination location so it could be accessed
-                    mDestination = (ParseGeoPoint) fetchedRequest.get(
-                            LocationRequest.LOCATION_COLUMN);
-                    ParseUser user = (ParseUser) fetchedRequest.get(LocationRequest.USER_COLUMN);
-                    user.fetchInBackground(new GetCallback<ParseUser>() {
-                        @Override
-                        public void done(ParseUser client, ParseException e) {
-                            if (client != null) {
-                                String firstName = (String) client.get(DispatchActivity.FIRST_NAME);
-                                String lastName = (String) client.get(DispatchActivity.LAST_NAME);
-                                String carYear = (String) client.get(DispatchActivity.CAR_YEAR);
-                                String carMake = (String) client.get(DispatchActivity.CAR_MAKE);
-                                String carModel = (String) client.get(DispatchActivity.CAR_MODEL);
-                                Bundle bundle = new Bundle();
-                                bundle.putString(DispatchActivity.FIRST_NAME, firstName);
-                                bundle.putString(DispatchActivity.LAST_NAME, lastName);
-                                bundle.putString(DispatchActivity.CAR_YEAR, carYear);
-                                bundle.putString(DispatchActivity.CAR_MAKE, carMake);
-                                bundle.putString(DispatchActivity.CAR_MODEL, carModel);
-                                bundle.putParcelable(LOCATION_COLUMN, GmapInteraction.
-                                        getLocation(mDestination));
-                                if (onSuccess != null)
-                                    onSuccess.done(bundle,null);
-                            } else {
-                                if (onConnectivityIssues != null)
-                                    onConnectivityIssues.done(e,null);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    public static ParseGeoPoint getmDestination(){
-        return mDestination;
-    }
-
-    public static void rejectRequest(final simpleCallback onConnectivityIssues){
-        if(mTruckerPost==null) return;
-        mTruckerPost.put(STATE_COLUMN, STATE_IDLE);
-        mTruckerPost.put(REQUESTS_COLUMN,JSONObject.NULL);
-        requestReceived = false;
-        mTruckerPost.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e!=null)
-                    if(onConnectivityIssues!=null)
-                        onConnectivityIssues.done(e,null);
-            }
-        });
-    }
-
-    public static void acceptRequest(final simpleCallback onConnectivityIssues
-            ,final simpleCallback onSuccess){
-        if(mTruckerPost==null) return;
-        ParseObject request = (ParseObject)mTruckerPost.get(REQUESTS_COLUMN);
-        if(request!=null) {
-            request.put(LocationRequest.TRUCKER_COLUMN, mTruckerPost);
-            request.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if(e!=null) {
-                        if (onConnectivityIssues != null)
-                            onConnectivityIssues.done(e, null);
-                    } else {
-                        if (onSuccess != null)
-                            onSuccess.done(null, null);
-                    }
-                }
-            });
-        }
-    }
-
-}
 
 interface PanelInflater{
     public void setViews(View view);
@@ -1229,9 +707,79 @@ interface PanelInflater{
     public void hidePanel();
 }
 
-class clientResultInflater implements PanelInflater{
+class animatedInflater implements PanelInflater{
 
-    private LinearLayout mRootView;
+    protected LinearLayout mRootView;
+    protected boolean viewsSet = false;
+    private boolean isVisible = false;
+    // fade in/out transition duration in milliseconds
+    protected final static long ANIMATION_DURATION = 500;
+
+    @Override
+    public void setViews(View view) {
+        mRootView = (LinearLayout)view;
+        hidePanel();
+        viewsSet = true;
+    }
+
+    @Override
+    public void setAccept(View.OnClickListener listener) {
+
+    }
+
+    @Override
+    public void setReject(View.OnClickListener listener) {
+
+    }
+
+    @Override
+    public void fillInViews(String firstName, String lastName, String carYear, String carMake, String carModel) {
+
+    }
+
+    public boolean isVisible(){
+        return isVisible;
+    }
+
+    @Override
+    public void displayPanel() {
+        isVisible = true;
+        if(mRootView.getVisibility()==View.VISIBLE) return;
+        // Set the view to 0% opacity but visible, so that it is visible
+        // (but fully transparent) during the animation.
+        mRootView.setAlpha(0f);
+        mRootView.setVisibility(View.VISIBLE);
+
+        // Animate the view to 100% opacity, and clear any animation
+        // listener set on the view.
+        mRootView.animate()
+                .alpha(1f)
+                .setDuration(ANIMATION_DURATION)
+                .setListener(null);
+    }
+
+    @Override
+    public void hidePanel() {
+        isVisible = false;
+        if(mRootView.getVisibility()==View.GONE) return;
+        // Animate the view to 0% opacity. After the animation ends,
+        // set its visibility to GONE as an optimization step (it won't
+        // participate in layout passes, etc.)
+        mRootView.animate()
+                .alpha(0f)
+                .setDuration(ANIMATION_DURATION)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mRootView.setVisibility(View.GONE);
+                    }
+                });
+    }
+}
+
+class clientResultInflater extends animatedInflater{
+
+//    private LinearLayout mRootView;
 
     private TextView firstNamefield;
     private TextView lastNamefield;
@@ -1242,7 +790,7 @@ class clientResultInflater implements PanelInflater{
     private Button acceptButton;
     private Button rejectButton;
 
-    private boolean viewsSet = false;
+//    private boolean viewsSet = false;
 
     clientResultInflater(View view){
         setViews(view);
@@ -1299,30 +847,29 @@ class clientResultInflater implements PanelInflater{
 
     @Override
     public void displayPanel(){
-        if(!viewsSet)return;
-        if(mRootView.getVisibility()==View.VISIBLE) return;
-        mRootView.setVisibility(View.VISIBLE);
+        super.displayPanel();
+//        if(!viewsSet)return;
+//        if(mRootView.getVisibility()==View.VISIBLE) return;
+//        mRootView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hidePanel(){
-        if(!viewsSet)return;
-        if(mRootView.getVisibility()==View.GONE) return;
-        mRootView.setVisibility(View.GONE);
+        super.hidePanel();
+//        if(!viewsSet)return;
+//        if(mRootView.getVisibility()==View.GONE) return;
+//        mRootView.setVisibility(View.GONE);
     }
 
 }
 
-class towTruckerResultInflater implements PanelInflater{
+class towTruckerResultInflater extends animatedInflater{
 
-    private LinearLayout mRootView;
 
     private TextView firstNamefield;
     private TextView lastNamefield;
 
     private Button rejectButton;
-
-    private boolean viewsSet = false;
 
     towTruckerResultInflater(View view){
         setViews(view);
@@ -1366,34 +913,31 @@ class towTruckerResultInflater implements PanelInflater{
 
     }
 
+
     @Override
     public void displayPanel(){
-        if(!viewsSet)return;
-        if(mRootView.getVisibility()==View.VISIBLE) return;
-        mRootView.setVisibility(View.VISIBLE);
+        super.displayPanel();
+//        if(!viewsSet)return;
+//        if(mRootView.getVisibility()==View.VISIBLE) return;
+//        mRootView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hidePanel(){
-        if(!viewsSet)return;
-        if(mRootView.getVisibility()==View.GONE) return;
-        mRootView.setVisibility(View.GONE);
+        super.hidePanel();
+//        if(!viewsSet)return;
+//        if(mRootView.getVisibility()==View.GONE) return;
+//        mRootView.setVisibility(View.GONE);
     }
 
 }
 
-class loadingInflater implements PanelInflater{
-
-
-    private LinearLayout mRootView;
+class loadingInflater extends animatedInflater{
 
     private TextView titleField;
     private TextView snippetField;
 
     private Button rejectButton;
-
-    private boolean viewsSet = false;
-
 
     loadingInflater(View view){
         setViews(view);
@@ -1434,17 +978,20 @@ class loadingInflater implements PanelInflater{
             snippetField.setText(snippet);
     }
 
+
     @Override
-    public void displayPanel() {
-        if(!viewsSet)return;
-        if(mRootView.getVisibility()==View.VISIBLE) return;
-        mRootView.setVisibility(View.VISIBLE);
+    public void displayPanel(){
+        super.displayPanel();
+//        if(!viewsSet)return;
+//        if(mRootView.getVisibility()==View.VISIBLE) return;
+//        mRootView.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void hidePanel() {
-        if(!viewsSet)return;
-        if(mRootView.getVisibility()==View.GONE) return;
-        mRootView.setVisibility(View.GONE);
+    public void hidePanel(){
+        super.hidePanel();
+//        if(!viewsSet)return;
+//        if(mRootView.getVisibility()==View.GONE) return;
+//        mRootView.setVisibility(View.GONE);
     }
 }

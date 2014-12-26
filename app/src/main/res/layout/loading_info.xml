@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!--
 <LinearLayout
 xmlns:android="http://schemas.android.com/apk/res/android"
 android:id="@+id/loading_panel"
 android:orientation="horizontal"
 android:background="@color/white"
 android:layout_gravity="bottom"
-android:visibility="gone"
+android:visibility="visible"
 android:gravity="center"
 android:layout_width="match_parent"
 android:layout_height="wrap_content">
@@ -50,4 +50,62 @@ android:layout_height="wrap_content">
                 android:id="@+id/snippet_bar"/>
 
         </LinearLayout>
+</LinearLayout>
+    -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/loading_panel"
+    android:orientation="horizontal"
+    android:background="@color/white"
+    android:layout_gravity="bottom"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="10dp"
+    android:layout_margin="15dp">
+
+    <!--
+    android:gravity="center"-->
+
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="LOADING"
+            android:id="@+id/title_bar"
+            android:textColor="@color/primary"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-light"
+            android:padding="15dp"/>
+    <!--
+            android:background="@color/accent_material_light"-->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="please stand by..."
+            android:textAllCaps="true"
+            android:padding="12dp"
+            android:textSize="12sp"
+            android:id="@+id/snippet_bar"/>
+
+    </LinearLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="@string/cancel"
+        android:background="@color/red"
+        android:textColor="@color/white"
+        android:padding="15dp"
+        android:layout_margin="0dp"
+        android:id="@+id/reject_button"/>
+    <!---->
 </LinearLayout>

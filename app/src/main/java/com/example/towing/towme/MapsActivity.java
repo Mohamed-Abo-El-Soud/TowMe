@@ -19,14 +19,11 @@ import android.widget.ListView;
 import com.example.towing.towme.maps.Placer;
 
 
-public class MapsActivity extends
-        ActionBarActivity
-    implements Placer.dialogListener
-{
+public class MapsActivity extends ActionBarActivity implements Placer.dialogListener{
     // fields for drawers
     private String[] mDrawerOptions;
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
+    protected DrawerLayout mDrawerLayout;
+    protected ListView mDrawerList;
     private ActionBarDrawerToggle mToggle;
 
     private NavigationDialog mDialog;
@@ -43,11 +40,10 @@ public class MapsActivity extends
         setSupportActionBar(tb);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
-        if (savedInstanceState == null) {
+        if(mToggle==null)
             initializeDrawer();
+        if(mDialog==null)
             mDialog = new NavigationDialog();
-        }
 
     }
 
@@ -87,8 +83,7 @@ public class MapsActivity extends
         mDrawerLayout.setDrawerListener(mToggle);
         mToggle.setDrawerIndicatorEnabled(true);
         // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item
+        mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item
                 , mDrawerOptions));
         // Set the list's click listener
         DrawerItemClickListener listener = new DrawerItemClickListener(this
@@ -118,7 +113,6 @@ public class MapsActivity extends
                 if(fragment == null)return;
                 DrawerItemClickListener.FragmentWithName fragmentWithName
                         = (DrawerItemClickListener.FragmentWithName)fragment;
-                if(fragmentWithName == null)return;
                 int fragmentType = DrawerItemClickListener.getFragmentType(fragmentWithName);
                 ab.setTitle(mDrawerOptions[fragmentType]);
             }
@@ -138,10 +132,10 @@ public class MapsActivity extends
 
     @Override
     public void onBackPressed() {
-        if (getFragmentManager().getBackStackEntryCount() == 0) {
-            this.finish();
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
+            this.finishAffinity();
         } else {
-            getFragmentManager().popBackStack();
+            getSupportFragmentManager().popBackStack();
         }
     }
 
@@ -173,11 +167,13 @@ public class MapsActivity extends
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle the drawer touch listener
-        if (mToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
+        return mToggle.onOptionsItemSelected(item) && super.onOptionsItemSelected(item);
 
-        return super.onOptionsItemSelected(item);
+//        if (mToggle.onOptionsItemSelected(item)) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
     }
 
 

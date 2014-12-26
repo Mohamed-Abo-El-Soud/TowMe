@@ -6,9 +6,12 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+
+import com.example.towing.towme.dispatch.DispatchActivity.simpleCallback;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,31 +24,18 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
 
     protected static Context mContext;
     private static final String LOG_TAG = GetAddressTask.class.getSimpleName();
-//    protected ProgressBar mActivityIndicator;
-    protected GmapInteraction mInteraction;
     protected Location mLocation;
-    protected String mAddress = null;
-    protected OnTaskCompleted mListener;
+    protected simpleCallback onSuccess;
+    protected simpleCallback onFail;
+    protected String mAddress;
 
-    public interface OnTaskCompleted{
-        void onTaskCompleted(Location location,String address);
-    }
-
-    public GetAddressTask(Context context,GmapInteraction interaction
-            ,ProgressBar activityIndicator,Location location,OnTaskCompleted listener) {
-        this(context,interaction
-                ,activityIndicator,location,null,listener);
-    }
-
-    public GetAddressTask(Context context,GmapInteraction interaction
-            ,ProgressBar activityIndicator,Location location,String address,OnTaskCompleted listener) {
+    public GetAddressTask(Context context,@NonNull Location location
+            , simpleCallback success, simpleCallback fail) {
         super();
-        mInteraction = interaction;
         mContext = context;
-//        mActivityIndicator = activityIndicator;
         mLocation = location;
-        mAddress = address;
-        mListener = listener;
+        onSuccess = success;
+        onFail = fail;
     }
 
     @Override
@@ -95,6 +85,8 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
                     "IO Exception in getFromLocation()");
             e1.printStackTrace();
 //            return ("IO Exception trying to get address");
+            // IO Exception trying to get address
+            cancel(true);
         } catch (IllegalArgumentException e2) {
             // Error message to post in the log
             String errorString = "Illegal arguments " +
@@ -105,6 +97,7 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
             Log.e("LocationSampleActivity", errorString);
             e2.printStackTrace();
 //            return errorString;
+            cancel(true);
         }
         // If the reverse geocode returned an address
         if (addresses != null && addresses.size() > 0) {
@@ -139,13 +132,22 @@ public class GetAddressTask extends AsyncTask<Void,Void,Void> {
         return null;
     }
 
+    @Override
+    protected void onCancelled() {
+        if(onFail!=null)
+            onFail.done(mLocation,null);
+    }
+
+    @Override
+    protected void onCancelled(Void aVoid) {
+        if(onFail!=null)
+            onFail.done(mLocation,null);
+    }
 
     @Override
     protected void onPostExecute(Void mVoid) {
         if(mAddress == null) return;
-//        mInteraction.addMarker("Your Location",mAddress,mLocation);
-//        mInteraction.viewLocation(mLocation);
-        if(mListener!=null)
-            mListener.onTaskCompleted(mLocation,mAddress);
+        if(onSuccess!=null)
+            onSuccess.done(mLocation,mAddress);
     }
 }
